@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat:*)",
+      "Bash(npm install:*)",
+      "Bash(npx expo prebuild:*)",
+      "Bash(adb devices:*)",
+      "Bash(adb kill-server:*)",
+      "Bash(adb start-server:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run android:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(node:*)"
+    ]
+  }
+}

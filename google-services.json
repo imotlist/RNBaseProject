@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "339749631778",
+    "project_id": "tally-green",
+    "storage_bucket": "tally-green.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:339749631778:android:4653d980b5c2289449977b",
+        "android_client_info": {
+          "package_name": "id.inalum.tallygreen"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxMXN6CzSYWIav7dyueRCAkgo-6yYbClE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

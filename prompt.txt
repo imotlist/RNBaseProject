@@ -1,0 +1,256 @@
+{
+  "role": "senior_react_native_architect",
+  "goal": "Create a production-ready React Native boilerplate using Ignite CLI that works well on iOS/iPad and Android phone/tablet with clean architecture, scalability, and easy customization.",
+  "constraints": {
+    "language": "TypeScript",
+    "framework": "React Native (Ignite CLI, bare)",
+    "avoid": [
+      "unnecessary UI",
+      "hardcoded styles",
+      "duplicated logic",
+      "tight coupling"
+    ]
+  },
+  "projectConfig": {
+    "root": "D:/TallyGreen",
+    "appName": "TallyGreen",
+    "appId": "id.inalum.tallygreen",
+    "version": "1.0.0",
+    "icon": "D:/TallyGreenAssets/icon.png",
+    "googleServiceAndroid": "D:/TallyGreenAssets/google_service.json",
+    "googleServiceIOS": "D:/TallyGreenAssets/GoogleService-Infoplist"
+  },
+  "uiStack": {
+    "uiLibrary": "ui-kitten",
+    "iconLibraries": [
+      "iconsax-react-native",
+      "@tabler/icons-react-native"
+    ]
+  },
+  "mainCapabilities": [
+    "FCM notification",
+    "bottom menu",
+    "bottom sheet",
+    "popup message",
+    "flash message",
+    "internet connection check",
+    "camera access",
+    "GPS/location access",
+    "open file (react-native-share)",
+    "download file",
+    "file/image selection",
+    "image viewer",
+    "centralized permission handling",
+    "form handling with Formik"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "title": "Project Initialization",
+      "task": "Initialize React Native project using Ignite CLI",
+      "requirements": [
+        "Use Ignite CLI",
+        "Bare React Native (not Expo)",
+        "TypeScript enabled",
+        "iOS and Android compatible",
+        "Standard Ignite folder structure"
+      ]
+    },
+    {
+      "step": 2,
+      "title": "Base Configuration & Assets",
+      "task": "Configure app identity and platform assets",
+      "requirements": [
+        "Set app icon for iOS and Android",
+        "Link google_service.json (Android)",
+        "Link GoogleService-Info.plist (iOS)",
+        "Ensure builds succeed"
+      ]
+    },
+    {
+      "step": 3,
+      "title": "Core Libraries Installation",
+      "task": "Install and configure required libraries",
+      "libraries": {
+        "ui": ["@ui-kitten/components", "@eva-design/eva"],
+        "icons": ["iconsax-react-native", "@tabler/icons-react-native"],
+        "system": [
+          "react-native-safe-area-context",
+          "react-native-permissions",
+          "@react-native-community/netinfo",
+          "react-native-gesture-handler",
+          "react-native-reanimated",
+          "@gorhom/bottom-sheet",
+          "react-native-flash-message",
+          "react-native-image-picker",
+          "react-native-document-picker",
+          "react-native-share",
+          "react-native-maps"
+        ],
+        "firebase": [
+          "@react-native-firebase/app",
+          "@react-native-firebase/messaging"
+        ],
+        "forms": ["formik", "yup"]
+      }
+    },
+    {
+      "step": 4,
+      "title": "App Providers & Theme System",
+      "task": "Create global providers and theme system",
+      "requirements": [
+        "UI Kitten ApplicationProvider",
+        "Theme customization (colors, fonts, font family)",
+        "Global base styles",
+        "Support future light/dark theme"
+      ]
+    },
+    {
+      "step": 5,
+      "title": "Screen Infrastructure",
+      "task": "Create core screen abstractions",
+      "components": [
+        "Screen (safe area, status bar, scroll/fixed, keyboard handling)",
+        "FormScreen preset (scroll + keyboard avoiding)"
+      ]
+    },
+    {
+      "step": 6,
+      "title": "Reusable UI Components",
+      "task": "Create reusable, theme-aware UI components",
+      "components": [
+        "Button",
+        "Input",
+        "Textarea",
+        "Dropdown",
+        "ScreenTitle",
+        "SearchBar (optional filter)",
+        "ImageViewer",
+        "IconPack abstraction (IconSax + Tabler)"
+      ]
+    },
+    {
+      "step": 7,
+      "title": "Navigation Setup",
+      "task": "Configure navigation and authentication flow",
+      "requirements": [
+        "React Navigation",
+        "Bottom Tab Navigation (Home, Data, Profile)",
+        "Auth flow (Intro, Login, Register)",
+        "Developer Screen",
+        "Functional login state",
+        "Protected routes"
+      ]
+    },
+    {
+      "step": 8,
+      "title": "Permissions & System Access",
+      "task": "Centralize permission handling",
+      "features": [
+        "Camera",
+        "GPS",
+        "File access",
+        "Image picker",
+        "Internet connection check"
+      ]
+    },
+    {
+      "step": 9,
+      "title": "Connection & API Layer",
+      "task": "Create networking and API abstraction",
+      "requirements": [
+        "Check internet before request",
+        "Handle 401 → redirect to login",
+        "Bearer token auth",
+        "Multipart upload support",
+        "env.ts for default base URL",
+        "Developer Screen override for base URL"
+      ]
+    },
+    {
+      "step": 10,
+      "title": "Hooks Layer",
+      "task": "Create reusable hooks",
+      "hooks": [
+        "useBottomSheet",
+        "usePopupMessage",
+        "useFlashMessage",
+        "useInfiniteScroll (pull-to-refresh)",
+        "useFormikSubmit"
+      ]
+    },
+    {
+      "step": 11,
+      "title": "Feature-Based Architecture",
+      "task": "Organize code by features",
+      "rules": [
+        "Each feature has its own directory",
+        "Each screen has styles.ts, view.tsx, index.tsx",
+        "API files separated per feature"
+      ]
+    },
+    {
+      "step": 12,
+      "title": "Helpers & Utilities",
+      "task": "Create helper functions",
+      "helpers": [
+        "time formatting",
+        "file download",
+        "open file",
+        "image picker (single/multi)",
+        "image cropper",
+        "camera helper"
+      ]
+    },
+    {
+      "step": 13,
+      "title": "Offline Database",
+      "task": "Implement offline-first data storage",
+      "requirements": [
+        "Local database",
+        "Offline support",
+        "Auto sync when connection restored"
+      ]
+    },
+    {
+      "step": 14,
+      "title": "Template Layout System",
+      "task": "Create reusable screen templates",
+      "structure": {
+        "templateLayout": [
+          "screenContentContainer",
+          "screenListContainer"
+        ]
+      },
+      "requirements": [
+        "Each template has styles.ts, view.tsx, index.tsx",
+        "Copyable via terminal command"
+      ]
+    },
+    {
+      "step": 15,
+      "title": "Initial Screens",
+      "task": "Create initial app screens",
+      "screens": [
+        "Intro",
+        "Login",
+        "Register",
+        "Developer",
+        "Home",
+        "Data",
+        "Profile"
+      ],
+      "requirements": [
+        "Functional authentication state",
+        "Navigation wired correctly",
+        "Use reusable components"
+      ]
+    }
+  ],
+  "finalInstructions": [
+    "Prefer clean architecture",
+    "Keep everything easy to update",
+    "Ensure Android and iOS compatibility",
+    "Centralize logic whenever possible"
+  ]
+}
