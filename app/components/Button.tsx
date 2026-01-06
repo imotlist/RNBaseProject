@@ -169,17 +169,38 @@ export function Button(props: ButtonProps) {
 
   // Get outline styles
   const $outlineStyle = outline ? themed($outlineViewStyle) : null
-  const $outlineTextStyle = outline ? themed($outlineTextStyles[preset]) : null
 
-  // Determine icon color based on preset and outline
+  // Get text color based on outline and color props
+  const $textColorStyle = color
+    ? outline
+      ? themed($colorTextStylesOutline[color])
+      : themed($colorTextStylesSolid[color])
+    : outline
+      ? themed($outlineTextStyles[preset])
+      : null
+
+  // Determine icon color based on preset, outline, and color
   const getIconColor = () => {
+    if (color) {
+      return outline ? getColorValue(color) : "#FFFFFF"
+    }
     if (outline) {
       return preset === "reversed" ? theme.colors.palette.neutral100 : theme.colors.text
     }
-    if (color) {
-      return "#FFFFFF"
-    }
     return preset === "reversed" ? theme.colors.palette.neutral100 : theme.colors.text
+  }
+
+  // Helper to get color value for outline icons
+  const getColorValue = (colorName: ButtonColor): string => {
+    const colorMap: Record<ButtonColor, string> = {
+      primary: theme.colors.tint,
+      secondary: theme.colors.palette.neutral400,
+      success: "#22c55e",
+      warning: "#f59e0b",
+      danger: "#ef4444",
+      info: "#3b82f6",
+    }
+    return colorMap[colorName]
   }
 
   /**
@@ -207,7 +228,8 @@ export function Button(props: ButtonProps) {
   function $textStyle({ pressed }: PressableStateCallbackType): StyleProp<TextStyle> {
     return [
       themed($textPresets[preset]),
-      $outlineTextStyle,
+      themed($textSizeStyles[size]),
+      $textColorStyle,
       $textStyleOverride,
       !!pressed && themed([$pressedTextPresets[preset], $pressedTextStyleOverride]),
       !!disabled && $disabledTextStyleOverride,
@@ -308,8 +330,6 @@ const $viewPresets: Record<Presets, ThemedStyleArray<ViewStyle>> = {
 const $textPresets: Record<Presets, ThemedStyleArray<TextStyle>> = {
   default: [
     ({ typography }) => ({
-      fontSize: scaleFontSize(16),
-      lineHeight: scaleFontSize(20),
       fontFamily: typography.primary.medium,
       textAlign: "center",
       flexShrink: 1,
@@ -319,8 +339,6 @@ const $textPresets: Record<Presets, ThemedStyleArray<TextStyle>> = {
   ],
   filled: [
     ({ typography }) => ({
-      fontSize: scaleFontSize(16),
-      lineHeight: scaleFontSize(20),
       fontFamily: typography.primary.medium,
       textAlign: "center",
       flexShrink: 1,
@@ -330,8 +348,6 @@ const $textPresets: Record<Presets, ThemedStyleArray<TextStyle>> = {
   ],
   reversed: [
     ({ typography, colors }) => ({
-      fontSize: scaleFontSize(16),
-      lineHeight: scaleFontSize(20),
       fontFamily: typography.primary.medium,
       textAlign: "center",
       flexShrink: 1,
@@ -356,20 +372,33 @@ const $pressedTextPresets: Record<Presets, ThemedStyle<TextStyle>> = {
 
 // Size variations
 const $sizeStyles: Record<ButtonSize, ThemedStyle<ViewStyle>> = {
-  small: ({ spacing }) => ({
-    minHeight: scale(36),
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
+  small: () => ({
+    height: scale(36),
+    paddingHorizontal: scale(12),
   }),
-  medium: ({ spacing }) => ({
-    minHeight: scale(48),
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.sm,
+  medium: () => ({
+    height: scale(44),
+    paddingHorizontal: scale(16),
   }),
-  large: ({ spacing }) => ({
-    minHeight: scale(56),
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.md,
+  large: () => ({
+    height: scale(52),
+    paddingHorizontal: scale(20),
+  }),
+}
+
+// Text size variations
+const $textSizeStyles: Record<ButtonSize, ThemedStyle<TextStyle>> = {
+  small: () => ({
+    fontSize: scaleFontSize(14),
+    lineHeight: scaleFontSize(18),
+  }),
+  medium: () => ({
+    fontSize: scaleFontSize(16),
+    lineHeight: scaleFontSize(20),
+  }),
+  large: () => ({
+    fontSize: scaleFontSize(18),
+    lineHeight: scaleFontSize(22),
   }),
 }
 
@@ -399,6 +428,26 @@ const $colorStyles: Record<ButtonColor, ThemedStyle<ViewStyle>> = {
     backgroundColor: "#3b82f6",
     borderColor: "#3b82f6",
   }),
+}
+
+// Text color for solid buttons (always white)
+const $colorTextStylesSolid: Record<ButtonColor, ThemedStyle<TextStyle>> = {
+  primary: () => ({ color: "#FFFFFF" }),
+  secondary: () => ({ color: "#FFFFFF" }),
+  success: () => ({ color: "#FFFFFF" }),
+  warning: () => ({ color: "#FFFFFF" }),
+  danger: () => ({ color: "#FFFFFF" }),
+  info: () => ({ color: "#FFFFFF" }),
+}
+
+// Text color for outline buttons (matches border color)
+const $colorTextStylesOutline: Record<ButtonColor, ThemedStyle<TextStyle>> = {
+  primary: ({ colors }) => ({ color: colors.tint }),
+  secondary: ({ colors }) => ({ color: colors.palette.neutral400 }),
+  success: () => ({ color: "#22c55e" }),
+  warning: () => ({ color: "#f59e0b" }),
+  danger: () => ({ color: "#ef4444" }),
+  info: () => ({ color: "#3b82f6" }),
 }
 
 // Rounded variations
