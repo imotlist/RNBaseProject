@@ -10,7 +10,8 @@
       "Bash(npx tsc:*)",
       "Bash(npm run android:*)",
       "Bash(npm uninstall:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(tree:*)"
     ]
   }
 }
