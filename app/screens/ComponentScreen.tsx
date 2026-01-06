@@ -120,15 +120,18 @@ export const ComponentScreen = () => {
     })
   }
 
-  const { theme: { colors } } = useAppTheme();
-  const [useColor, setColor] = useState('white');
+  const { theme: { colors, layout } } = useAppTheme();
+  const statusBarColor = 'white';
+  const [useColor, setUseColor] = useState(statusBarColor);
   const isFocused = useIsFocused();
-  
+
   useEffect(() => {
     if (isFocused) {
-      setColor('white');
+      console.log("Home screen focused");
+      setUseColor(statusBarColor);
     }
-  }, [useColor, isFocused]);
+
+  }, [isFocused, useColor]);
 
   return (
     <Screen preset="scroll" safeAreaEdges={["top"]} contentContainerStyle={styles.container} statusBarBackgroundColor={useColor}>

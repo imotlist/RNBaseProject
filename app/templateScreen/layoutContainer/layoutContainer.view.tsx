@@ -7,7 +7,7 @@
  * @module screens/{{FEATURE_NAME}}
  */
 
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { View, StyleSheet, Pressable, ScrollView, ActivityIndicator, RefreshControl } from "react-native"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
@@ -15,7 +15,8 @@ import { Icon } from "@/components/Icon"
 import { scale, scaleFontSize } from "@/utils/responsive"
 import { useAppTheme } from "@/theme/context"
 import styles from "./{{FEATURE_NAME_PASCAL}}Container.styles"
-import { de } from "date-fns/locale"
+import { TitleBar } from "@/components/ui"
+import { useIsFocused } from "@react-navigation/native"
 
 // ============================================================================
 // Types
@@ -60,19 +61,23 @@ const {{FEATURE_NAME_PASCAL}}ContainerView: React.FC<{{FEATURE_NAME_PASCAL}}Cont
   isLoading = false,
 }) => {
   const { theme } = useAppTheme()
+  const  { colors, layout }  = theme;
+  const statusBarColor = 'white';
+  const [useColor, setUseColor] = useState(statusBarColor);
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+      if (isFocused) {
+          // console.log("Home screen focused");
+          setUseColor(statusBarColor);
+      }
+
+  }, [isFocused, useColor]);
 
   return (
-    <Screen preset="fixed" safeAreaEdges={["top"]}>
+    <Screen preset="fixed" safeAreaEdges={["top"]} statusBarBackgroundColor={useColor}>
       {/* Header */}
-      <View style={[styles.header, { backgroundColor: theme.colors.background, borderBottomColor: theme.colors.separator }]}>
-        <Text preset="heading" style={styles.title}>
-          {{FEATURE_NAME_PASCAL}}
-        </Text>
-        <Pressable onPress={onActionPress} style={styles.actionButton}>
-          <Icon icon="more" size={24} color={theme.colors.tint} />
-        </Pressable>
-      </View>
-
+      <TitleBar title="{{FEATURE_NAME_PASCAL}}" backgroundColor={useColor} />
       {/* Content */}
       {isLoading ? (
         <View style={styles.loadingContainer}>
@@ -163,9 +168,9 @@ const DataItem: React.FC<DataItemProps> = ({ item, selected, onPress }) => {
     </Pressable>
   )
 }
+
 export default {{FEATURE_NAME_PASCAL}}ContainerView
 
 // ============================================================================
 // Styles
 // ============================================================================
-

@@ -1,4 +1,4 @@
-import { ReactNode, useRef, useState } from "react"
+import { ReactNode, useEffect, useRef, useState } from "react"
 import {
   KeyboardAvoidingView,
   KeyboardAvoidingViewProps,
@@ -11,7 +11,7 @@ import {
   View,
   ViewStyle,
 } from "react-native"
-import { useScrollToTop } from "@react-navigation/native"
+import { useIsFocused, useScrollToTop } from "@react-navigation/native"
 import { SystemBars, SystemBarsProps, SystemBarStyle } from "react-native-edge-to-edge"
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller"
 
@@ -265,6 +265,14 @@ export function Screen(props: ScreenProps) {
   const finalBackgroundColor = backgroundColor || colors.background
   const finalStatusBarBackgroundColor = statusBarBackgroundColor || finalBackgroundColor
   const shouldColorStatusBar = Platform.OS === "android" && safeAreaEdges?.includes("top")
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    if(isFocused) {
+      // console.log("Screen focused - setting status bar color", finalStatusBarBackgroundColor);
+      StatusBar.setBackgroundColor(finalStatusBarBackgroundColor)
+    }
+  }, [isFocused])
 
   return (
     <View
@@ -275,8 +283,13 @@ export function Screen(props: ScreenProps) {
       ]}
     >
       {shouldColorStatusBar && (
-        // <View style={[$statusBarStyle, { backgroundColor: finalStatusBarBackgroundColor }]} />
-        <StatusBar backgroundColor={finalStatusBarBackgroundColor} />
+        <>
+          {/* <StatusBar backgroundColor={finalStatusBarBackgroundColor} /> */}
+          <View
+            key={`statusbar-${finalStatusBarBackgroundColor}`}
+            style={[$statusBarStyle, { backgroundColor: finalStatusBarBackgroundColor }]}
+          />
+        </>
       )}
 
       <SystemBars
@@ -311,7 +324,7 @@ const $statusBarStyle: ViewStyle = {
   top: 0,
   left: 0,
   right: 0,
-  height: "auto",
+  height: 24,
 }
 
 const $outerStyle: ViewStyle = {

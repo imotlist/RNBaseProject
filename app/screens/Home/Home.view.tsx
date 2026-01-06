@@ -6,18 +6,22 @@ import { Avatar } from "@/components/ui/Avatar"
 import { useAppTheme } from "@/theme/context"
 import { Frame, HeaderApp } from "@/components/ui"
 import { Card } from "@/components/Card"
-import { useEffect, useState } from "react"
+import { use, useEffect, useState } from "react"
 import { useIsFocused } from "@react-navigation/native"
 
 const HomeView = () => {
     const { theme: { colors, layout } } = useAppTheme();
-    const [useColor, setColor] = useState(colors.palette.primary300);
+    const statusBarColor = colors.palette.primary300;
+    const [useColor, setUseColor] = useState(statusBarColor);
     const isFocused = useIsFocused();
+
     useEffect(() => {
         if (isFocused) {
-            setColor(colors.palette.primary300);
+            console.log("Home screen focused");
+            setUseColor(statusBarColor);
         }
-    }, [useColor, isFocused]);
+
+    }, [isFocused, useColor]);
 
     return (
         <Screen preset="scroll" safeAreaEdges={["top"]} statusBarBackgroundColor={useColor}>

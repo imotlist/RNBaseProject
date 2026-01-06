@@ -7,6 +7,7 @@
  * @module screens/{{FEATURE_NAME}}
  */
 
+import React, { useEffect, useState } from "react"
 import { View, StyleSheet, Pressable } from "react-native"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
@@ -16,7 +17,8 @@ import { FilterChips } from "@/components/filters"
 import { scale, scaleFontSize } from "@/utils/responsive"
 import { useAppTheme } from "@/theme/context"
 import styles from "./{{FEATURE_NAME_PASCAL}}List.styles"
-import { de } from "date-fns/locale"
+import { useIsFocused } from "@react-navigation/native"
+
 // ============================================================================
 // Types
 // ============================================================================
@@ -71,12 +73,24 @@ const {{FEATURE_NAME_PASCAL}}ListView: React.FC<{{FEATURE_NAME_PASCAL}}ListViewP
   fetchOptions,
   filterOptions = DEFAULT_FILTER_OPTIONS,
 }) => {
-  const { theme } = useAppTheme()
+    const { theme } = useAppTheme()
+    const  { colors, layout }  = theme;
+    const statusBarColor = 'white';
+    const [useColor, setUseColor] = useState(statusBarColor);
+    const isFocused = useIsFocused();
+  
+    useEffect(() => {
+        if (isFocused) {
+            // console.log("Home screen focused");
+            setUseColor(statusBarColor);
+        }
+  
+    }, [isFocused, useColor]);
 
   return (
-    <Screen preset="fixed" safeAreaEdges={["top"]}>
+    <Screen preset="fixed" safeAreaEdges={["top"]} statusBarBackgroundColor={useColor}>
       {/* Fixed Header */}
-      <View style={[styles.header, { backgroundColor: theme.colors.background, borderBottomColor: theme.colors.separator }]}>
+      <View style={[styles.header, { backgroundColor: useColor, borderBottomColor: theme.colors.separator }]}>
         <Text preset="heading" style={styles.title}>
           {{FEATURE_NAME_PASCAL}}
         </Text>
@@ -87,7 +101,7 @@ const {{FEATURE_NAME_PASCAL}}ListView: React.FC<{{FEATURE_NAME_PASCAL}}ListViewP
         <SearchBar
           value={searchQuery}
           onChangeText={onSearchChange}
-          placeholder={`Search `}
+          placeholder="Search..."
           showFilter
           onFilterPress={onOpenFilters}
           showClear={!!searchQuery}
