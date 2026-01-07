@@ -10,6 +10,7 @@
 
 import { useCallback } from "react"
 import ProfileContainerView from "./ProfileContainerView"
+import { useAuth } from "@/context/AuthContext"
 
 // ============================================================================
 // Types
@@ -27,9 +28,11 @@ export interface ProfileData {
 // ============================================================================
 
 export const ProfileScreen = () => {
+  const { logout } = useAuth()
   const handleActionPress = useCallback(() => {
     // Placeholder for logout action
     console.log("Logout pressed")
+    logout();
     // TODO: Implement actual logout logic
   }, [])
 
@@ -41,7 +44,7 @@ export const ProfileScreen = () => {
   return (
     <ProfileContainerView
       selectedData={null}
-      onSelectData={() => {}}
+      onSelectData={() => { }}
       onActionPress={handleActionPress}
       onRefresh={handleRefresh}
       isLoading={false}
