@@ -6,18 +6,22 @@
 import React, { useEffect } from "react"
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import { useAppTheme } from "@/theme/context"
-import { Icon } from "@/components/Icon"
 import type { MainTabParamList } from "./navigationTypes"
 import { useSafeAreaInsets, SafeAreaView } from "react-native-safe-area-context"
 import { Platform, View } from "react-native"
 
-// Placeholder screens - will be replaced with actual implementations
-import { WelcomeScreen } from "@/screens/WelcomeScreen"
-import { DemoCommunityScreen } from "@/screens/DemoCommunityScreen"
-import { DemoDebugScreen } from "@/screens/DemoDebugScreen"
-import { ComponentScreen } from "@/screens/ComponentScreen"
-import { setNavigationBar } from "@/services/sytemBars"
+// Component showcase screens
 import Home from "@/screens/Home"
+import { ButtonsScreen } from "@/screens/Buttons/ButtonsContainer"
+import { InputsScreen } from "@/screens/Inputs/InputsContainer"
+import { TogglesScreen } from "@/screens/Toggles/TogglesContainer"
+import { CardsScreen } from "@/screens/Cards/CardsContainer"
+import { ListsScreen } from "@/screens/Lists/ListsList"
+import { AvatarsScreen } from "@/screens/Avatars/AvatarsContainer"
+import { FiltersScreen } from "@/screens/Filters/FiltersContainer"
+import { DataItemsScreen } from "@/screens/DataItems/DataItemsList"
+import { ProfileScreen } from "@/screens/Profile/ProfileContainer"
+import { setNavigationBar } from "@/services/sytemBars"
 import { IconPack } from "@/components/ui"
 import InfiniteListExampleScreen from "@/screens/InfiniteListExampleScreen"
 
@@ -64,36 +68,29 @@ export const MainTabNavigator = () => {
         />
         <Tab.Screen
           name="Data"
-          component={DemoCommunityScreen as any}
+          component={DataItemsScreen as any}
           options={{
             tabBarLabel: "Data",
-            tabBarIcon: ({ color }) => <Icon icon="components" size={24} color={color} />,
-          }}
-        />
-        <Tab.Screen
-          name="Profile"
-          component={DemoDebugScreen as any}
-          options={{
-            tabBarLabel: "Profile",
-            tabBarIcon: ({ color }) => <Icon icon="ladybug" size={24} color={color} />,
-          }}
-        />
-        <Tab.Screen
-          name="Components"
-          component={ComponentScreen as any}
-          options={{
-            tabBarLabel: "Components",
-            tabBarIcon: ({ color }) => <Icon icon="components" size={24} color={color} />,
+            tabBarIcon: ({ color }) => <IconPack name="document" size={24} color={color} />,
           }}
         />
         <Tab.Screen
           name="List"
-          component={InfiniteListExampleScreen as any}
+          component={ListsScreen as any}
           options={{
             tabBarLabel: "List",
-            tabBarIcon: ({ color }) => <IconPack name="document" size={24} color={color} />,
+            tabBarIcon: ({ color }) => <IconPack name="list" size={24} color={color} />,
           }}
         />
+        <Tab.Screen
+          name="Profile"
+          component={ProfileScreen as any}
+          options={{
+            tabBarLabel: "Profile",
+            tabBarIcon: ({ color }) => <IconPack name="user" size={24} color={color} />,
+          }}
+        />
+
       </Tab.Navigator>
     </SafeAreaView>
   )

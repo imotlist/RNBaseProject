@@ -79,7 +79,7 @@ export const HeaderApp: React.FC<HeaderAppProps> = ({
   const { theme } = useAppTheme()
 
   const opacity = disabled ? 0.5 : 1
-  const bgColor = backgroundColor || theme.colors.tint
+  const bgColor = backgroundColor || theme.colors.palette.primary500
 
   return (
     <View
@@ -96,6 +96,7 @@ export const HeaderApp: React.FC<HeaderAppProps> = ({
           text={avatarText}
           size="medium"
           shape="circle"
+          backgroundColor={theme.colors.palette.neutral400}
         />
       </Pressable>
 

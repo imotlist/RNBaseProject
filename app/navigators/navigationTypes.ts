@@ -40,6 +40,16 @@ export type AppStackParamList = {
   Main: NavigatorScreenParams<MainTabParamList>
   // Standalone screens
   Developer: undefined
+  // Component showcase screens
+  ButtonsScreen: undefined
+  InputsScreen: undefined
+  TogglesScreen: undefined
+  CardsScreen: undefined
+  ListsScreen: undefined
+  AvatarsScreen: undefined
+  FiltersScreen: undefined
+  DataItemsScreen: undefined
+  ProfileScreen: undefined
   // Demo screens (kept for reference)
   DemoCommunity: undefined
   DemoShowroom: { queryIndex?: string; itemIndex?: string }

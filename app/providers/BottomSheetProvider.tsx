@@ -53,14 +53,15 @@ export const BottomSheetProvider: React.FC<BottomSheetProviderProps> = ({ childr
   }, [])
 
   const renderBackdrop = useCallback(
-    (props: any) => (
-      <BottomSheetBackdrop
-        {...props}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-        opacity={0.5}
-      />
-    ),
+    (props: any) =>
+      props.index >= 0 ? (
+        <BottomSheetBackdrop
+          {...props}
+          disappearsOnIndex={-1}
+          appearsOnIndex={0}
+          opacity={0.5}
+        />
+      ) : null,
     [],
   )
 
@@ -78,7 +79,7 @@ export const BottomSheetProvider: React.FC<BottomSheetProviderProps> = ({ childr
         enablePanDownToClose={true}
       >
         <BottomSheetView style={styles.contentContainer}>
-          {content && <View style={styles.contentInner} key="bottom-sheet-content">{content}</View>}
+          {content && <View style={styles.contentInner}>{content}</View>}
         </BottomSheetView>
       </BottomSheet>
     </BottomSheetContext.Provider>

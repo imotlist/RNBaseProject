@@ -17,6 +17,17 @@ import { MainTabNavigator } from "./MainTabNavigator"
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
 import type { AppStackParamList, NavigationProps } from "./navigationTypes"
 
+// Component showcase screens
+import { ButtonsScreen } from "@/screens/Buttons/ButtonsContainer"
+import { InputsScreen } from "@/screens/Inputs/InputsContainer"
+import { TogglesScreen } from "@/screens/Toggles/TogglesContainer"
+import { CardsScreen } from "@/screens/Cards/CardsContainer"
+import { ListsScreen } from "@/screens/Lists/ListsList"
+import { AvatarsScreen } from "@/screens/Avatars/AvatarsContainer"
+import { FiltersScreen } from "@/screens/Filters/FiltersContainer"
+import { DataItemsScreen } from "@/screens/DataItems/DataItemsList"
+import { ProfileScreen } from "@/screens/Profile/ProfileContainer"
+
 /**
  * This is a list of all the route names that will exit the app if the back button
  * is pressed while in that screen. Only affects Android.
@@ -48,6 +59,16 @@ const AppStack = () => {
         <>
           <Stack.Screen name="Main" component={MainTabNavigator} />
           <Stack.Screen name="Developer" component={DeveloperPlaceholderScreen} />
+          {/* Component showcase screens */}
+          <Stack.Screen name="ButtonsScreen" component={ButtonsScreen} />
+          <Stack.Screen name="InputsScreen" component={InputsScreen} />
+          <Stack.Screen name="TogglesScreen" component={TogglesScreen} />
+          <Stack.Screen name="CardsScreen" component={CardsScreen} />
+          <Stack.Screen name="ListsScreen" component={ListsScreen} />
+          <Stack.Screen name="AvatarsScreen" component={AvatarsScreen} />
+          <Stack.Screen name="FiltersScreen" component={FiltersScreen} />
+          <Stack.Screen name="DataItemsScreen" component={DataItemsScreen} />
+          <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
         </>
       ) : (
         <>

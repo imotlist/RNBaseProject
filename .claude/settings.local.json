@@ -11,7 +11,13 @@
       "Bash(npm run android:*)",
       "Bash(npm uninstall:*)",
       "Bash(node:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(./gradlew:*)",
+      "Bash(npx expo run:android:*)",
+      "Bash(taskkill:*)",
+      "Bash(netstat:*)",
+      "Bash(xargs:*)",
+      "Bash(npx expo start --clear)"
     ]
   }
 }

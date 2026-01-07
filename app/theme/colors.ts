@@ -1,38 +1,139 @@
 const palette = {
-  neutral100: "#FFFFFF",
-  neutral200: "#F4F2F1",
-  neutral300: "#D7CEC9",
-  neutral400: "#B6ACA6",
-  neutral500: "#978F8A",
-  neutral600: "#564E4A",
-  neutral700: "#3C3836",
-  neutral800: "#191015",
-  neutral900: "#000000",
+  // Neutral shades (renamed from grey for clarity)
+  neutral50: "#F9FAFB",
+  neutral100: "#F3F4F6",
+  neutral200: "#E5E7EB",
+  neutral300: "#D1D5DB",
+  neutral400: "#9CA3AF",
+  neutral500: "#6B7280",
+  neutral600: "#4B5563",
+  neutral700: "#374151",
+  neutral800: "#1F2937",
+  neutral900: "#111827",
 
-  primary100: "#F4E0D9",
-  primary200: "#E8C1B4",
-  primary300: "#DDA28E",
-  primary400: "#D28468",
-  primary500: "#C76542",
-  primary600: "#A54F31",
+  // Primary green color palette
+  primary50: "#f7f9ea",
+  primary100: "#ebf1cc",
+  primary200: "#dbe5a4",
+  primary300: "#cbd979",
+  primary400: "#bbce51",
+  primary500: "#acc32b", // Main primary
+  primary600: "#92a625",
+  primary700: "#7a8a1f",
+  primary800: "#626f19",
+  primary900: "#4d5813",
 
-  secondary100: "#DCDDE9",
-  secondary200: "#BCC0D6",
-  secondary300: "#9196B9",
-  secondary400: "#626894",
-  secondary500: "#41476E",
+  // Outline color palette
+  outline50: "#F9FAFB",
+  outline100: "#F3F4F6",
+  outline200: "#E5E7EB",
+  outline300: "#D1D5DB",
+  outline400: "#9CA3AF",
+  outline500: "#6B7280",
+  outline600: "#4B5563",
+  outline700: "#374151",
+  outline800: "#1F2937",
+  outline900: "#111827",
 
-  accent100: "#FFEED4",
-  accent200: "#FFE1B2",
-  accent300: "#FDD495",
-  accent400: "#FBC878",
-  accent500: "#FFBB50",
+  // Error color palette
+  error50: "#FEF2F2",
+  error100: "#FEE2E2",
+  error200: "#FECACA",
+  error300: "#FCA5A5",
+  error400: "#F87171",
+  error500: "#EF4444", // Main error
+  error600: "#DC2626",
+  error700: "#B91C1C",
+  error800: "#991B1B",
+  error900: "#7F1D1D",
 
-  angry100: "#F2D6CD",
-  angry500: "#C03403",
+  // Success color palette
+  success50: "#F0FDF4",
+  success100: "#DCFCE7",
+  success200: "#BBF7D0",
+  success300: "#86EFAC",
+  success400: "#4ADE80",
+  success500: "#22C55E", // Main success
+  success600: "#16A34A",
+  success700: "#15803D",
+  success800: "#166534",
+  success900: "#14532D",
 
-  overlay20: "rgba(25, 16, 21, 0.2)",
-  overlay50: "rgba(25, 16, 21, 0.5)",
+  // Warning color palette
+  warning50: "#FFF7ED",
+  warning100: "#FFEDD5",
+  warning200: "#FED7AA",
+  warning300: "#FDBA74",
+  warning400: "#FB923C",
+  warning500: "#F97316", // Main warning
+  warning600: "#EA580C",
+  warning700: "#C2410C",
+  warning800: "#9A3412",
+  warning900: "#7C2D12",
+
+  // Purple color palette
+  purple50: "#FAF5FF",
+  purple100: "#F3E8FF",
+  purple200: "#E9D5FF",
+  purple300: "#D8B4FE",
+  purple400: "#C084FC",
+  purple500: "#A855F7", // Main purple
+  purple600: "#9333EA",
+  purple700: "#7E22CE",
+  purple800: "#6B21A8",
+  purple900: "#581C87",
+
+  // Malibu (blue) color palette
+  malibu50: "#EFF6FF",
+  malibu100: "#DBEAFE",
+  malibu200: "#BFDBFE",
+  malibu300: "#93C5FD",
+  malibu400: "#60A5FA",
+  malibu500: "#3B82F6", // Main malibu/blue
+  malibu600: "#2563EB",
+  malibu700: "#1D4ED8",
+  malibu800: "#1E40AF",
+  malibu900: "#1E3A8A",
+
+  // Teal color palette
+  teal50: "#F0FDFA",
+  teal100: "#CCFBF1",
+  teal200: "#99F6E4",
+  teal300: "#5EEAD4",
+  teal400: "#2DD4BF",
+  teal500: "#14B8A6", // Main teal
+  teal600: "#0D9488",
+  teal700: "#0F766E",
+  teal800: "#115E59",
+  teal900: "#134E4A",
+
+  // Yellow color palette
+  yellow50: "#FEFCE8",
+  yellow100: "#FEF9C3",
+  yellow200: "#FEF08A",
+  yellow300: "#FDE047",
+  yellow400: "#FACC15",
+  yellow500: "#EAB308", // Main yellow
+  yellow600: "#CA8A04",
+  yellow700: "#A16207",
+  yellow800: "#854D0E",
+  yellow900: "#713F12",
+
+  // Dark blue color palette
+  darkBlue50: "#EFF6FF",
+  darkBlue100: "#DBEAFE",
+  darkBlue200: "#BFDBFE",
+  darkBlue300: "#93C5FD",
+  darkBlue400: "#60A5FA",
+  darkBlue500: "#3B82F6", // Main dark blue
+  darkBlue600: "#2563EB",
+  darkBlue700: "#1D4ED8",
+  darkBlue800: "#1E40AF",
+  darkBlue900: "#1E3A8A",
+
+  // Overlay colors
+  overlay20: "rgba(17, 24, 39, 0.2)",
+  overlay50: "rgba(17, 24, 39, 0.5)",
 } as const
 
 export const colors = {
@@ -53,15 +154,15 @@ export const colors = {
   /**
    * Secondary text information.
    */
-  textDim: palette.neutral600,
+  textDim: palette.neutral500,
   /**
    * The default color of the screen background.
    */
-  background: 'white',
+  background: palette.neutral50,
   /**
    * The default border color.
    */
-  border: palette.neutral400,
+  border: palette.neutral200,
   /**
    * The main tinting color.
    */
@@ -73,13 +174,21 @@ export const colors = {
   /**
    * A subtle color used for lines.
    */
-  separator: palette.neutral300,
+  separator: palette.neutral200,
   /**
    * Error messages.
    */
-  error: palette.angry500,
+  error: palette.error500,
   /**
    * Error Background.
    */
-  errorBackground: palette.angry100,
+  errorBackground: palette.error50,
+  /**
+   * Success color.
+   */
+  success: palette.success500,
+  /**
+   * Warning color.
+   */
+  warning: palette.warning500,
 } as const

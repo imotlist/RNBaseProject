@@ -1,50 +1,217 @@
+/**
+ * HomeView.tsx
+ *
+ * Home screen with navigation grid to all component showcase screens.
+ *
+ * @module screens/Home
+ */
 
+import React, { useState, useEffect } from "react"
+import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native"
 import { Screen } from "@/components/Screen"
-import { Header } from "@/components/Header"
-import { View, Text } from "react-native"
-import { Avatar } from "@/components/ui/Avatar"
+import { Avatar, HeaderApp } from "@/components/ui"
 import { useAppTheme } from "@/theme/context"
-import { Frame, HeaderApp } from "@/components/ui"
-import { Card } from "@/components/Card"
-import { use, useEffect, useState } from "react"
 import { useIsFocused } from "@react-navigation/native"
+import { useNavigation } from "@react-navigation/native"
+
+// Component showcase screen data
+const showcaseScreens = [
+  { id: "buttons", name: "Buttons", icon: "", description: "Button variations and styles" },
+  { id: "inputs", name: "Inputs", icon: "", description: "Text fields and inputs" },
+  { id: "toggles", name: "Toggles", icon: "", description: "Switches and checkboxes" },
+  { id: "cards", name: "Cards", icon: "", description: "Card components" },
+  { id: "lists", name: "Lists", icon: "", description: "List items and rows" },
+  { id: "avatars", name: "Avatars", icon: "", description: "User avatars" },
+  { id: "filters", name: "Filters", icon: "", description: "Filter chips and bars" },
+  { id: "dataitems", name: "Data Items", icon: "", description: "Data list example" },
+  { id: "profile", name: "Profile", icon: "", description: "Profile screen" },
+]
 
 const HomeView = () => {
-    const { theme: { colors, layout } } = useAppTheme();
-    const statusBarColor = colors.palette.primary300;
-    const [useColor, setUseColor] = useState(statusBarColor);
-    const isFocused = useIsFocused();
+  const { theme } = useAppTheme()
+  const navigation = useNavigation()
+  const statusBarColor = theme.colors.palette.primary500
+  const [useColor, setUseColor] = useState(statusBarColor)
+  const isFocused = useIsFocused()
 
-    useEffect(() => {
-        if (isFocused) {
-            console.log("Home screen focused");
-            setUseColor(statusBarColor);
-        }
+  useEffect(() => {
+    if (isFocused) {
+      setUseColor(statusBarColor)
+    }
+  }, [isFocused, statusBarColor])
 
-    }, [isFocused, useColor]);
+  const navigateToScreen = (screenId: string) => {
+    console.log("Navigating to screen:", screenId)
+    // Navigate to the appropriate screen based on ID
+    const screenName = screenId.charAt(0).toUpperCase() + screenId.slice(1) + "Screen"
+      ; (navigation as any).navigate(screenName)
+  }
 
-    return (
-        <Screen preset="scroll" safeAreaEdges={["top"]} statusBarBackgroundColor={useColor}>
-            <HeaderApp
-                avatarText="XY"
-                title="Guest User"
-                subtitle="Administrator"
-                // notificationIcon="setting"
-                notificationCount={10}
-                backgroundColor={useColor}
-            />
-            <View style={{ height: 70, backgroundColor: 'white' }}>
-                <View style={[layout.rowEvenPad, layout.gap]}>
-                    <Frame color="neutral" style={{ height: 100, marginTop: 20 }}>
-                        <Text>Neutral Frame (default)</Text>
-                    </Frame>
-                    <Frame color="danger" style={{ height: 100, marginTop: 20 }}>
-                        <Text>Neutral Frame (default)</Text>
-                    </Frame>
-                </View>
-            </View>
-        </Screen>
-    )
+  return (
+    <Screen preset="scroll" safeAreaEdges={["top"]} statusBarBackgroundColor={useColor} style={$outerStyle}>
+      <HeaderApp
+        avatarText="Gu"
+        title="Guest User"
+        subtitle="Administrator"
+        notificationCount={10}
+        backgroundColor={useColor}
+      />
+
+      <ScrollView
+        style={$flex1}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Welcome Section */}
+        <View style={[styles.welcomeSection, { backgroundColor: theme.colors.palette.primary100 }]}>
+          <Text style={[styles.welcomeTitle, { color: theme.colors.palette.primary500 }]}>
+            Component Showcase
+          </Text>
+          <Text style={[styles.welcomeSubtitle, { color: theme.colors.palette.primary400 }]}>
+            Explore all reusable UI components
+          </Text>
+        </View>
+
+        {/* Components Grid */}
+        <View style={styles.content}>
+          <Text style={[styles.sectionTitle, { color: theme.colors.textDim }]}>
+            Components ({showcaseScreens.length})
+          </Text>
+
+          <View style={styles.grid}>
+            {showcaseScreens.map((screen) => (
+              <Pressable
+                key={screen.id}
+                style={({ pressed }) => [
+                  styles.gridItem,
+                  { backgroundColor: theme.colors.palette.neutral100 },
+                  pressed && { backgroundColor: theme.colors.palette.neutral200 },
+                ]}
+                onPress={() => navigateToScreen(screen.id)}
+                android_ripple={{ color: theme.colors.palette.neutral200, borderless: false }}
+              >
+                <Avatar text={screen.name} size="medium" backgroundColor={theme.colors.palette.neutral400} />
+                <Text style={[styles.gridItemTitle, { color: theme.colors.text }]}>
+                  {screen.name}
+                </Text>
+                <Text style={[styles.gridItemDescription, { color: theme.colors.textDim }]}>
+                  {screen.description}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+
+          {/* Info Section */}
+          <View style={[styles.infoSection, { backgroundColor: theme.colors.palette.neutral100 }]}>
+            <Text style={[styles.infoTitle, { color: theme.colors.text }]}>
+              About This App
+            </Text>
+            <Text style={[styles.infoText, { color: theme.colors.textDim }]}>
+              This showcase demonstrates all the reusable UI components available in the TallyGreen
+              design system. Each screen displays various states and variations of a component.
+            </Text>
+            <Text style={[styles.infoText, { color: theme.colors.textDim }]}>
+              Tap on any component card to view its showcase screen with examples and usage patterns.
+            </Text>
+          </View>
+        </View>
+      </ScrollView>
+    </Screen>
+  )
+}
+
+function getScreenIcon(screenId: string): string {
+  const icons: Record<string, string> = {
+    buttons: "",
+    inputs: "",
+    toggles: "",
+    cards: "",
+    lists: "",
+    avatars: "",
+    filters: "",
+    dataitems: "",
+    profile: "",
+  }
+  return icons[screenId] || ""
 }
 
 export default HomeView
+
+const styles = StyleSheet.create({
+  scrollContent: {
+    paddingBottom: 24,
+  },
+  welcomeSection: {
+    padding: 24,
+    alignItems: "center",
+  },
+  welcomeTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  welcomeSubtitle: {
+    fontSize: 14,
+  },
+  content: {
+    padding: 16,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 16,
+    textTransform: "uppercase",
+  },
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginHorizontal: -6,
+  },
+  gridItem: {
+    width: "50%",
+    padding: 6,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  iconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
+  iconEmoji: {},
+  gridItemTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  gridItemDescription: {
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  infoSection: {
+    padding: 16,
+    borderRadius: 12,
+    marginTop: 8,
+  },
+  infoTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 8,
+  },
+  infoText: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 8,
+  },
+})
+
+const $outerStyle = {
+  flex: 1,
+}
+
+const $flex1 = {
+  flex: 1,
+}

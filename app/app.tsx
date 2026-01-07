@@ -40,6 +40,7 @@ import { BottomSheetProvider } from "./providers/BottomSheetProvider"
 import { PopupMessageProvider } from "./providers/PopupMessageProvider"
 import { setNavigationBar } from "./services/sytemBars"
 
+
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
 
 // Web linking configuration
@@ -110,7 +111,7 @@ export function App() {
 
   // otherwise, we're ready to render the app
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView>
       <SafeAreaProvider initialMetrics={initialWindowMetrics}>
         <KeyboardProvider>
           <AuthProvider>
