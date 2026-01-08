@@ -35,7 +35,7 @@ export interface FrameProps {
   /**
    * Container style override
    */
-  style?: ViewStyle
+  style?: any
   /**
    * Children components
    */

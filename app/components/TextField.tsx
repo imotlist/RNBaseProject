@@ -171,18 +171,19 @@ export const TextField = forwardRef(function TextField(props: TextFieldProps, re
   const $inputWrapperStyles = [
     $styles.row,
     themed(({ colors }) => ({
-      alignItems: "center",
-      borderWidth: 1,
-      backgroundColor: colors.palette.neutral200,
-      borderColor: colors.palette.neutral400,
-      overflow: "hidden",
+      alignItems: "center" as const,
+      borderWidth: .75,
+      backgroundColor: 'white',
+      borderColor: colors.palette.neutral300,
+      overflow: "hidden" as const,
+      paddingHorizontal: scale(10),
     })),
     $sizeStyle,
     $roundedStyle,
     status === "error" && { borderColor: colors.error },
-    TextInputProps.multiline && { alignItems: "flex-start", minHeight: scale(112) },
-    LeftAccessory && { paddingStart: 0 },
-    RightAccessory && { paddingEnd: 0 },
+    TextInputProps.multiline && { alignItems: "flex-start" as const, minHeight: scale(112) },
+    LeftAccessory && { paddingStart: scale(20) },
+    RightAccessory && { paddingEnd: scale(20) },
     $inputWrapperStyleOverride,
   ]
 
@@ -297,14 +298,16 @@ const $helperStyle: ThemedStyle<TextStyle> = ({ spacing }) => ({
 })
 
 const $rightAccessoryStyle: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  marginEnd: spacing.xs,
+  marginEnd: spacing.sm,
+  paddingHorizontal: spacing.sm,
   height: scale(40),
   justifyContent: "center",
   alignItems: "center",
 })
 
 const $leftAccessoryStyle: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  marginStart: spacing.xs,
+  marginStart: spacing.sm,
+  paddingHorizontal: spacing.sm,
   height: scale(40),
   justifyContent: "center",
   alignItems: "center",

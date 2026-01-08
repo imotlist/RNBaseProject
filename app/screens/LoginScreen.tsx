@@ -11,8 +11,9 @@ import { useAuth } from "@/context/AuthContext"
 import type { AppStackScreenProps } from "@/navigators/navigationTypes"
 import type { ThemedStyle } from "@/theme/types"
 import { useAppTheme } from "@/theme/context"
+import { storage } from "@/utils/storage"
 
-interface LoginScreenProps extends AppStackScreenProps<"Login"> {}
+interface LoginScreenProps extends AppStackScreenProps<"Login"> { }
 
 export const LoginScreen: FC<LoginScreenProps> = () => {
   const authPasswordInput = useRef<TextInput>(null)
@@ -38,6 +39,8 @@ export const LoginScreen: FC<LoginScreenProps> = () => {
   const error = isSubmitted ? validationError : ""
 
   function login() {
+    const INTRO_SHOWN_KEY = "intro_has_been_shown"
+    storage.set(INTRO_SHOWN_KEY, false)
     setIsSubmitted(true)
     setAttemptsCount(attemptsCount + 1)
 

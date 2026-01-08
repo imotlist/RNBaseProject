@@ -7,13 +7,15 @@
  */
 
 import React, { useState, useEffect } from "react"
-import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native"
+import { View, StyleSheet, Pressable, ScrollView } from "react-native"
+import { Text } from "@/components/Text"
 import { Screen } from "@/components/Screen"
-import { Avatar, HeaderApp } from "@/components/ui"
+import { Avatar, Frame, HeaderApp, IconPack } from "@/components/ui"
 import { useAppTheme } from "@/theme/context"
 import { useIsFocused } from "@react-navigation/native"
 import { useNavigation } from "@react-navigation/native"
-
+import styles from "./Home.styles"
+import { scale } from "@/utils/responsive"
 // Component showcase screen data
 const showcaseScreens = [
   { id: "buttons", name: "Buttons", icon: "", description: "Button variations and styles" },
@@ -28,9 +30,9 @@ const showcaseScreens = [
 ]
 
 const HomeView = () => {
-  const { theme } = useAppTheme()
+  const { theme: { colors } } = useAppTheme()
   const navigation = useNavigation()
-  const statusBarColor = theme.colors.palette.primary500
+  const statusBarColor = colors.palette.primary700
   const [useColor, setUseColor] = useState(statusBarColor)
   const isFocused = useIsFocused()
 
@@ -63,54 +65,48 @@ const HomeView = () => {
         keyboardShouldPersistTaps="handled"
       >
         {/* Welcome Section */}
-        <View style={[styles.welcomeSection, { backgroundColor: theme.colors.palette.primary100 }]}>
-          <Text style={[styles.welcomeTitle, { color: theme.colors.palette.primary500 }]}>
-            Component Showcase
-          </Text>
-          <Text style={[styles.welcomeSubtitle, { color: theme.colors.palette.primary400 }]}>
-            Explore all reusable UI components
-          </Text>
+        <View style={[styles.rowEvenPad, { height: scale(60), marginBottom: scale(50), backgroundColor: useColor }]}>
+          <Frame style={{ height: scale(105), gap: scale(10) }}>
+            <View style={[styles.rowStart, { alignItems: 'center' }]}>
+              <Avatar asset={require("@assets/images/IconPlant.png")} size="medium" backgroundColor={colors.palette.success500} />
+              <Text size="xl" weight="medium">30</Text>
+            </View>
+            <Text size="xs">Tanaman Telah Dirawat</Text>
+          </Frame>
+          <Frame style={{ height: scale(105), gap: scale(10) }}>
+            <View style={[styles.rowStart, { alignItems: 'center' }]}>
+              <Avatar icon="image" size="medium" backgroundColor={colors.palette.neutral400} />
+              <Text size="xl" weight="medium">24</Text>
+            </View>
+            <Text size="xs">Foto Tanaman Diambil</Text>
+          </Frame>
         </View>
 
         {/* Components Grid */}
-        <View style={styles.content}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.textDim }]}>
-            Components ({showcaseScreens.length})
-          </Text>
+        <View style={styles.contentContainer}>
 
-          <View style={styles.grid}>
-            {showcaseScreens.map((screen) => (
-              <Pressable
-                key={screen.id}
-                style={({ pressed }) => [
-                  styles.gridItem,
-                  { backgroundColor: theme.colors.palette.neutral100 },
-                  pressed && { backgroundColor: theme.colors.palette.neutral200 },
-                ]}
-                onPress={() => navigateToScreen(screen.id)}
-                android_ripple={{ color: theme.colors.palette.neutral200, borderless: false }}
-              >
-                <Avatar text={screen.name} size="medium" backgroundColor={theme.colors.palette.neutral400} />
-                <Text style={[styles.gridItemTitle, { color: theme.colors.text }]}>
-                  {screen.name}
-                </Text>
-                <Text style={[styles.gridItemDescription, { color: theme.colors.textDim }]}>
-                  {screen.description}
-                </Text>
-              </Pressable>
-            ))}
+          <View style={[styles.sectionContainer]}>
+            <Frame rounded="full" color="warning" style={[styles.rowEven, { borderWidth: 0 }]}>
+              <IconPack name="warning" size={scale(20)} color={colors.warning} />
+              <Text size="xs">8 data perawatan belum tersinkron. Cek koneksi Anda!</Text>
+            </Frame>
+          </View>
+
+          <View style={[styles.sectionContainer]}>
+            <Text size="lg">Tanaman disekitar</Text>
+            
           </View>
 
           {/* Info Section */}
-          <View style={[styles.infoSection, { backgroundColor: theme.colors.palette.neutral100 }]}>
-            <Text style={[styles.infoTitle, { color: theme.colors.text }]}>
+          <View style={[styles.infoSection, { backgroundColor: colors.palette.neutral100 }]}>
+            <Text style={[styles.infoTitle, { color: colors.text }]}>
               About This App
             </Text>
-            <Text style={[styles.infoText, { color: theme.colors.textDim }]}>
+            <Text style={[styles.infoText, { color: colors.textDim }]}>
               This showcase demonstrates all the reusable UI components available in the TallyGreen
               design system. Each screen displays various states and variations of a component.
             </Text>
-            <Text style={[styles.infoText, { color: theme.colors.textDim }]}>
+            <Text style={[styles.infoText, { color: colors.textDim }]}>
               Tap on any component card to view its showcase screen with examples and usage patterns.
             </Text>
           </View>
@@ -136,77 +132,6 @@ function getScreenIcon(screenId: string): string {
 }
 
 export default HomeView
-
-const styles = StyleSheet.create({
-  scrollContent: {
-    paddingBottom: 24,
-  },
-  welcomeSection: {
-    padding: 24,
-    alignItems: "center",
-  },
-  welcomeTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  welcomeSubtitle: {
-    fontSize: 14,
-  },
-  content: {
-    padding: 16,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-    marginBottom: 16,
-    textTransform: "uppercase",
-  },
-  grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginHorizontal: -6,
-  },
-  gridItem: {
-    width: "50%",
-    padding: 6,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  iconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 12,
-  },
-  iconEmoji: {},
-  gridItemTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-  gridItemDescription: {
-    fontSize: 12,
-    lineHeight: 16,
-  },
-  infoSection: {
-    padding: 16,
-    borderRadius: 12,
-    marginTop: 8,
-  },
-  infoTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  infoText: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 8,
-  },
-})
 
 const $outerStyle = {
   flex: 1,

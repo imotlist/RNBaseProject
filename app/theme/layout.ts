@@ -21,6 +21,7 @@ export const layoutPresets = {
   rowEven: {
     flexDirection: "row",
     justifyContent: "space-evenly",
+    gap: spacing.xs,
   } as ViewStyle,
 
   // Row Even Pad - Horizontal with even distribution and padding
@@ -29,12 +30,14 @@ export const layoutPresets = {
     justifyContent: "space-evenly",
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    gap: spacing.xs,
   } as ViewStyle,
 
   // Row Between - Horizontal with space between children
   rowBetween: {
     flexDirection: "row",
     justifyContent: "space-between",
+    gap: spacing.xs,
   } as ViewStyle,
 
   // Row Between Pad - Horizontal with space between and padding
@@ -43,12 +46,14 @@ export const layoutPresets = {
     justifyContent: "space-between",
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    gap: spacing.xs,
   } as ViewStyle,
 
   // Row Center - Horizontal with centered children
   rowCenter: {
     flexDirection: "row",
     justifyContent: "center",
+    gap: spacing.xs,
   } as ViewStyle,
 
   // Row Center Pad - Horizontal centered with padding
@@ -57,12 +62,14 @@ export const layoutPresets = {
     justifyContent: "center",
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    gap: spacing.xs,
   } as ViewStyle,
 
   // Row Start - Horizontal with left-aligned children
   rowStart: {
     flexDirection: "row",
     justifyContent: "flex-start",
+    gap: spacing.xs,
   } as ViewStyle,
 
   // Row Start Pad - Horizontal left-aligned with padding
@@ -71,12 +78,14 @@ export const layoutPresets = {
     justifyContent: "flex-start",
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    gap: spacing.xs,
   } as ViewStyle,
 
   // Row End - Horizontal with right-aligned children
   rowEnd: {
     flexDirection: "row",
     justifyContent: "flex-end",
+    gap: spacing.xs,
   } as ViewStyle,
 
   // Row End Pad - Horizontal right-aligned with padding
@@ -85,17 +94,20 @@ export const layoutPresets = {
     justifyContent: "flex-end",
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    gap: spacing.xs,
   } as ViewStyle,
 
   // Column - Vertical layout (top to bottom)
   column: {
     flexDirection: "column",
+    gap: spacing.xs,
   } as ViewStyle,
 
   // Column Even - Vertical with evenly distributed children
   columnEven: {
     flexDirection: "column",
     justifyContent: "space-evenly",
+    gap: spacing.xs,
   } as ViewStyle,
 
   // Column Even Pad - Vertical with even distribution and padding
@@ -104,12 +116,14 @@ export const layoutPresets = {
     justifyContent: "space-evenly",
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    gap: spacing.xs,
   } as ViewStyle,
 
   // Column Between - Vertical with space between children
   columnBetween: {
     flexDirection: "column",
     justifyContent: "space-between",
+    gap: spacing.xs,
   } as ViewStyle,
 
   // Column Between Pad - Vertical with space between and padding
@@ -118,12 +132,14 @@ export const layoutPresets = {
     justifyContent: "space-between",
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    gap: spacing.xs,
   } as ViewStyle,
 
   // Column Center - Vertical with centered children
   columnCenter: {
     flexDirection: "column",
     justifyContent: "center",
+    gap: spacing.xs,
   } as ViewStyle,
 
   // Column Center Pad - Vertical centered with padding
@@ -132,12 +148,14 @@ export const layoutPresets = {
     justifyContent: "center",
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    gap: spacing.xs,
   } as ViewStyle,
 
   // Center - Center both horizontally and vertically
   center: {
     justifyContent: "center",
     alignItems: "center",
+    gap: spacing.xs,
   } as ViewStyle,
 
   // Center Pad - Centered with padding
@@ -146,6 +164,7 @@ export const layoutPresets = {
     alignItems: "center",
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    gap: spacing.xs,
   } as ViewStyle,
 
   // Fill - Fill available space
@@ -158,6 +177,7 @@ export const layoutPresets = {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    gap: spacing.xs,
   } as ViewStyle,
 
   // Centered Horizontal - Center horizontally with flex: 1

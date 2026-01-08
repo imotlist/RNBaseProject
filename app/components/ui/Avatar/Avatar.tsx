@@ -1,12 +1,13 @@
 /**
  * Avatar component
- * A reusable avatar component supporting images, URIs, and text fallbacks
+ * A reusable avatar component supporting images, URIs, icons, and text fallbacks
  */
 
 import React from "react"
 import { View, StyleSheet, Image, ImageStyle, ViewStyle, TextStyle } from "react-native"
 import { useAppTheme } from "@/theme/context"
 import { Text } from "@/components/Text"
+import { IconPack } from "../IconPack"
 import { scale, moderateScale } from "@/utils/responsive"
 
 type AvatarSize = "small" | "medium" | "large" | "xlarge"
@@ -25,6 +26,18 @@ export interface AvatarProps {
    * Text to show as fallback (usually first letter of name)
    */
   text?: string
+  /**
+   * Icon name from IconPack to display
+   */
+  icon?: string
+  /**
+   * Icon size (defaults to 60% of avatar size)
+   */
+  iconSize?: number
+  /**
+   * Icon color (defaults to text color)
+   */
+  iconColor?: string
   /**
    * Size variation
    */
@@ -63,6 +76,9 @@ export const Avatar: React.FC<AvatarProps> = ({
   source,
   asset,
   text,
+  icon,
+  iconSize,
+  iconColor,
   size = "medium",
   shape = "circle",
   backgroundColor,
@@ -74,10 +90,11 @@ export const Avatar: React.FC<AvatarProps> = ({
 }) => {
   const { theme } = useAppTheme()
 
-  const sizeStyles = sizeStylesMap[size]
+  const sizeStyles = sizeStylesMap[size] as any;
   const borderRadius = shape === "circle" ? sizeStyles.width / 2 : borderRadiusMap[shape]
 
   const hasImage = !!(source || asset)
+  const hasIcon = !!icon
   const opacity = disabled ? 0.5 : 1
 
   // Get display text (first character, uppercase)
@@ -86,6 +103,10 @@ export const Avatar: React.FC<AvatarProps> = ({
   // Default background colors for text fallback (if not provided)
   const defaultBgColor = backgroundColor || theme.colors.tint
   const defaultTextColor = textColor || theme.colors.palette.neutral100
+  const defaultIconColor = iconColor || theme.colors.palette.neutral100
+
+  // Calculate icon size (60% of avatar size by default)
+  const calculatedIconSize = iconSize || sizeStyles.width * 0.6
 
   return (
     <View
@@ -95,7 +116,7 @@ export const Avatar: React.FC<AvatarProps> = ({
         {
           borderRadius,
           opacity,
-          backgroundColor: hasImage ? undefined : defaultBgColor,
+          backgroundColor: backgroundColor ? backgroundColor : defaultBgColor,
           borderColor: borderColor || theme.colors.border,
           borderWidth: borderWidth ?? 0,
         },
@@ -106,6 +127,12 @@ export const Avatar: React.FC<AvatarProps> = ({
         <Image
           source={source ? { uri: source } : asset}
           style={[styles.image, { borderRadius }]}
+        />
+      ) : hasIcon ? (
+        <IconPack
+          name={icon as any}
+          size={calculatedIconSize}
+          color={defaultIconColor}
         />
       ) : displayText ? (
         <Text
@@ -131,8 +158,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   image: {
-    width: "100%",
-    height: "100%",
+    width: "60%",
+    height: "60%",
     resizeMode: "cover",
   },
   text: {

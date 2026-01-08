@@ -8,8 +8,11 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { useAppTheme } from "@/theme/context"
 import type { AuthStackParamList } from "./navigationTypes"
 
-// Placeholder screens - will be replaced with actual implementations
+// Auth screens
 import { LoginScreen } from "@/screens/LoginScreen"
+import AuthContainer from "@/screens/Auth"
+import { IntroScreen } from "@/screens/IntroScreen"
+import { RegisterContainer } from "@/screens/Register"
 
 const Stack = createNativeStackNavigator<AuthStackParamList>()
 
@@ -25,25 +28,12 @@ export const AuthNavigator = () => {
           backgroundColor: theme.colors.background,
         },
       }}
-      initialRouteName="Login"
+      initialRouteName="Intro"
     >
-      {/* Using LoginScreen as placeholder for all auth screens */}
-      <Stack.Screen
-        name="Intro"
-        component={LoginScreen}
-        // @ts-ignore - placeholder
-      />
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen
-        name="Register"
-        component={LoginScreen}
-        // @ts-ignore - placeholder
-      />
-      <Stack.Screen
-        name="ForgotPassword"
-        component={LoginScreen}
-        // @ts-ignore - placeholder
-      />
+      {/* Intro/Onboarding screen - shown on first launch */}
+      <Stack.Screen name="Intro" component={IntroScreen} />
+      <Stack.Screen name="Login" component={AuthContainer} />
+      <Stack.Screen name="Register" component={RegisterContainer} />
     </Stack.Navigator>
   )
 }

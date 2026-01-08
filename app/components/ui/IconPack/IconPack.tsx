@@ -19,6 +19,7 @@ export type IconSaxName =
   | "arrow-left2"
   | "arrow-right"
   | "arrow-down"
+  | "arrow-down2"
   | "arrow-up"
   | "heart"
   | "notification"
@@ -141,6 +142,7 @@ export const IconPack: React.FC<IconPackProps> = ({
     "arrow-left2": Iconsax.ArrowLeft2,
     "arrow-right": Iconsax.ArrowRight,
     "arrow-down": Iconsax.ArrowDown,
+    "arrow-down2": Iconsax.ArrowDown2,
     "arrow-up": Iconsax.ArrowUp,
     heart: Iconsax.Heart,
     notification: Iconsax.Notification,
@@ -236,6 +238,7 @@ export const ICON_MAPPINGS: Record<IconSaxName, { iconSax?: string; tabler?: str
   "arrow-left2": { iconSax: "arrow-left2", tabler: "arrow-left" },
   "arrow-right": { iconSax: "arrow-right", tabler: "arrow-right" },
   "arrow-down": { iconSax: "arrow-down", tabler: "arrow-down" },
+  "arrow-down2": { iconSax: "arrow-down2", tabler: "arrow-down" },
   "arrow-up": { iconSax: "arrow-up", tabler: "arrow-up" },
   heart: { iconSax: "heart", tabler: "heart" },
   notification: { iconSax: "notification", tabler: "bell" },
