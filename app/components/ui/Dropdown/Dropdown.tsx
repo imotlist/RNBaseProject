@@ -9,6 +9,7 @@ import { useAppTheme } from "@/theme/context"
 import { Text } from "@/components/Text"
 import { Icon } from "@/components/Icon"
 import { scale, moderateScale, scaleFontSize } from "@/utils/responsive"
+import { IconPack } from "../IconPack"
 
 type DropdownSize = "small" | "medium" | "large"
 type DropdownRounded = "none" | "sm" | "md" | "lg" | "full"
@@ -96,7 +97,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
           sizeStyles,
           roundedStyle,
           {
-            backgroundColor: theme.colors.palette.neutral200,
+            backgroundColor: 'white',
             borderColor: error ? theme.colors.error : theme.colors.border,
           },
           disabled && styles.disabled,
@@ -112,7 +113,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
         >
           {selectedOption?.label || placeholder}
         </Text>
-        <Icon icon="caretLeft" size={16} color={theme.colors.textDim} />
+        <IconPack name="arrow-down2" size={16} color={theme.colors.textDim} />
       </Pressable>
       {error && (
         <Text style={[styles.error, { color: theme.colors.error }]}>{error}</Text>
