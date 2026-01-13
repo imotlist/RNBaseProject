@@ -6,7 +6,7 @@
  * @module screens/Home
  */
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import { View, StyleSheet, Pressable, ScrollView } from "react-native"
 import { Text } from "@/components/Text"
 import { Screen } from "@/components/Screen"
@@ -14,6 +14,9 @@ import { Avatar, Frame, HeaderApp, IconPack } from "@/components/ui"
 import { useAppTheme } from "@/theme/context"
 import { useIsFocused } from "@react-navigation/native"
 import { useNavigation } from "@react-navigation/native"
+import { useAuth } from "@/context/AuthContext"
+import type { UserData } from "@/context/AuthContext"
+import * as authApi from "@/services/api/apisCollection/auth"
 import styles from "./Home.styles"
 import { scale } from "@/utils/responsive"
 // Component showcase screen data
@@ -32,9 +35,30 @@ const showcaseScreens = [
 const HomeView = () => {
   const { theme: { colors } } = useAppTheme()
   const navigation = useNavigation()
+  const { user: authUser } = useAuth()
   const statusBarColor = colors.palette.primary700
   const [useColor, setUseColor] = useState(statusBarColor)
   const isFocused = useIsFocused()
+  const [profileData, setProfileData] = useState<UserData | null>(null)
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false)
+
+  // Fetch profile data from API
+  const fetchProfile = useCallback(async () => {
+    setIsLoadingProfile(true)
+    try {
+      const data = await authApi.getProfile()
+      setProfileData(data)
+    } catch (err) {
+      console.error("Failed to fetch profile:", err)
+    } finally {
+      setIsLoadingProfile(false)
+    }
+  }, [])
+
+  // Fetch profile on mount
+  useEffect(() => {
+    fetchProfile()
+  }, [fetchProfile])
 
   useEffect(() => {
     if (isFocused) {
@@ -49,12 +73,20 @@ const HomeView = () => {
       ; (navigation as any).navigate(screenName)
   }
 
+  // Get user data for header (prefer API data, fallback to AuthContext)
+  const user = profileData || authUser
+  const userName = user?.name || user?.username || "Guest"
+  const userRole = user?.role || "User"
+  const avatarUri = user?.avatar
+  const avatarText = userName.charAt(0).toUpperCase()
+
   return (
     <Screen preset="scroll" safeAreaEdges={["top"]} statusBarBackgroundColor={useColor} style={$outerStyle}>
       <HeaderApp
-        avatarText="Gu"
-        title="Guest User"
-        subtitle="Administrator"
+        avatarUri={avatarUri}
+        avatarText={avatarText}
+        title={userName}
+        subtitle={userRole}
         notificationCount={10}
         backgroundColor={useColor}
       />
@@ -68,7 +100,7 @@ const HomeView = () => {
         <View style={[styles.rowEvenPad, { height: scale(60), marginBottom: scale(50), backgroundColor: useColor }]}>
           <Frame style={{ height: scale(105), gap: scale(10) }}>
             <View style={[styles.rowStart, { alignItems: 'center' }]}>
-              <Avatar asset={require("@assets/images/IconPlant.png")} size="medium" backgroundColor={colors.palette.success500} />
+              <Avatar imageAsIcon={true} asset={require("@assets/images/IconPlant.png")} size="medium" backgroundColor={colors.palette.success500} />
               <Text size="xl" weight="medium">30</Text>
             </View>
             <Text size="xs">Tanaman Telah Dirawat</Text>

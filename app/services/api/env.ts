@@ -3,9 +3,7 @@
  * Environment configuration for API
  */
 
-const API_BASE_URL = __DEV__
-  ? "https://api-dev.example.com/v1"
-  : "https://api.example.com/v1"
+const API_BASE_URL = "https://tally-green.skwn.dev/api/mobile"
 
 // Developer override for testing
 let developerOverrideBaseUrl: string | null = null

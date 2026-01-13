@@ -113,7 +113,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       style={[
         containerStyle,
         {
-          backgroundColor: theme.colors.palette.neutral200,
+          backgroundColor: theme.colors.palette.neutral100,
           borderColor: theme.colors.border,
         },
       ]}

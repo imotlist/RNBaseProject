@@ -8,19 +8,28 @@
  * @module screens/Profile
  */
 
-import { useCallback } from "react"
+import { useCallback, useEffect, useState } from "react"
+import { Alert } from "react-native"
+import { useNavigation } from "@react-navigation/native"
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import type { AppStackParamList } from "@/navigators/navigationTypes"
 import ProfileContainerView from "./ProfileContainerView"
 import { useAuth } from "@/context/AuthContext"
+import type { UserData, City } from "@/context/AuthContext"
+import * as authApi from "@/services/api/apisCollection/auth"
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export interface ProfileData {
-  id: string
-  title: string
-  value: string | number
-  [key: string]: any
+export interface ProfileContainerViewProps {
+  user?: UserData | null
+  isLoading?: boolean
+  city?: City | null
+  onLogout: () => void
+  onRefresh: () => Promise<void>
+  onEditProfile?: () => void
+  onChangeDistrict?: () => void
 }
 
 // ============================================================================
@@ -28,26 +37,69 @@ export interface ProfileData {
 // ============================================================================
 
 export const ProfileScreen = () => {
-  const { logout } = useAuth()
-  const handleActionPress = useCallback(() => {
-    // Placeholder for logout action
-    console.log("Logout pressed")
-    logout();
-    // TODO: Implement actual logout logic
+  const { user, logout } = useAuth()
+  const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
+  const [isLoading, setIsLoading] = useState(false)
+  const [profileData, setProfileData] = useState<UserData | null>(null)
+
+  // Fetch profile data from API
+  const fetchProfile = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const data = await authApi.getProfile()
+      setProfileData(data)
+    } catch (err) {
+      console.error("Failed to fetch profile:", err)
+    } finally {
+      setIsLoading(false)
+    }
   }, [])
 
-  const handleRefresh = useCallback(async () => {
-    // Placeholder for refresh handling
-    console.log("Refresh triggered")
+  // Fetch profile on mount
+  useEffect(() => {
+    fetchProfile()
+  }, [fetchProfile])
+
+  const handleLogout = useCallback(() => {
+    Alert.alert(
+      "Logout",
+      "Apakah Anda yakin ingin keluar?",
+      [
+        { text: "Batal", style: "cancel" },
+        {
+          text: "Ya",
+          style: "destructive",
+          onPress: async () => {
+            await authApi.logout()
+            logout()
+          },
+        },
+      ],
+    )
+  }, [logout])
+
+  const handleEditProfile = useCallback(() => {
+    const currentUser = profileData || user
+    if (!currentUser) return
+
+    // Navigate to ProfileEdit screen
+    navigation.navigate("ProfileEdit", { user: currentUser })
+  }, [profileData, user, navigation])
+
+  const handleChangeDistrict = useCallback(() => {
+    // TODO: Navigate to change district screen
+    console.log("Change district")
   }, [])
 
   return (
     <ProfileContainerView
-      selectedData={null}
-      onSelectData={() => { }}
-      onActionPress={handleActionPress}
-      onRefresh={handleRefresh}
-      isLoading={false}
+      user={profileData || user}
+      isLoading={isLoading}
+      city={profileData?.city || null}
+      onLogout={handleLogout}
+      onRefresh={fetchProfile}
+      onEditProfile={handleEditProfile}
+      onChangeDistrict={handleChangeDistrict}
     />
   )
 }

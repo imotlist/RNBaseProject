@@ -27,6 +27,9 @@ import { AvatarsScreen } from "@/screens/Avatars/AvatarsContainer"
 import { FiltersScreen } from "@/screens/Filters/FiltersContainer"
 import { DataItemsScreen } from "@/screens/DataItems/DataItemsList"
 import { ProfileScreen } from "@/screens/Profile/ProfileContainer"
+import RiwayatDetailScreen from "@/screens/RiwayatDetail"
+import RiwayatTanamanScreen from "@/screens/RiwayatTanaman"
+import ProfileEditScreen from "@/screens/ProfileEdit"
 
 /**
  * This is a list of all the route names that will exit the app if the back button
@@ -59,6 +62,31 @@ const AppStack = () => {
         <>
           <Stack.Screen name="Main" component={MainTabNavigator} />
           <Stack.Screen name="Developer" component={DeveloperPlaceholderScreen} />
+          {/* Feature screens */}
+          <Stack.Screen
+            name="RiwayatDetail"
+            component={RiwayatDetailScreen as any}
+            options={{
+              headerShown: false,
+              presentation: "card",
+            }}
+          />
+          <Stack.Screen
+            name="RiwayatTanaman"
+            component={RiwayatTanamanScreen as any}
+            options={{
+              headerShown: false,
+              presentation: "card",
+            }}
+          />
+          <Stack.Screen
+            name="ProfileEdit"
+            component={ProfileEditScreen as any}
+            options={{
+              headerShown: false,
+              presentation: "card",
+            }}
+          />
           {/* Component showcase screens */}
           <Stack.Screen name="ButtonsScreen" component={ButtonsScreen} />
           <Stack.Screen name="InputsScreen" component={InputsScreen} />

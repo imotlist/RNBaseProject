@@ -24,6 +24,7 @@ export type IconSaxName =
   | "heart"
   | "notification"
   | "message"
+  | "sms"
   | "camera"
   | "image"
   | "document"
@@ -50,6 +51,7 @@ export type IconSaxName =
   | "lock"
   | "unlock"
   | "eye"
+  | "eyeSlash"
   | "eye-off"
   | "star"
   | "star-filled"
@@ -82,6 +84,23 @@ export type IconSaxName =
   | "zoom-in"
   | "zoom-out"
   | "resize"
+  // Additional icons for Penanaman screen
+  | "closeCircle"
+  | "tickCircle"
+  | "hashtag"
+  | "grid9"
+  | "cleaning"
+  | "danger"
+  | "height"
+  | "arrowRight2"
+  | "map"
+  | "global"
+  | "tree"
+  | "leaf"
+  // Additional icons for RiwayatDetail screen
+  | "arrowLeft"
+  | "note"
+  | "magic"
 
 export type IconType = "iconSax" | "tabler"
 
@@ -147,6 +166,7 @@ export const IconPack: React.FC<IconPackProps> = ({
     heart: Iconsax.Heart,
     notification: Iconsax.Notification,
     message: Iconsax.Message,
+    sms: Iconsax.Sms,
     camera: Iconsax.Camera,
     image: Iconsax.Image,
     document: Iconsax.Document,
@@ -173,6 +193,7 @@ export const IconPack: React.FC<IconPackProps> = ({
     lock: Iconsax.Lock,
     unlock: Iconsax.Unlock,
     eye: Iconsax.Eye,
+    eyeSlash: Iconsax.EyeSlash,
     "eye-off": Iconsax.EyeSlash,
     star: Iconsax.Star,
     "star-filled": Iconsax.Star,
@@ -205,6 +226,22 @@ export const IconPack: React.FC<IconPackProps> = ({
     "zoom-in": Iconsax.SearchZoomIn,
     "zoom-out": Iconsax.SearchZoomOut,
     resize: Iconsax.Maximize,
+    // Additional icons for Penanaman and RiwayatDetail screens
+    closeCircle: Iconsax.CloseCircle,
+    tickCircle: Iconsax.TickCircle,
+    hashtag: Iconsax.Hashtag,
+    "grid9": Iconsax.Grid9,
+    cleaning: Iconsax.CleaningServices,
+    danger: Iconsax.Danger,
+    height: Iconsax.Height,
+    arrowRight2: Iconsax.ArrowRight2,
+    map: Iconsax.Map1,
+    global: Iconsax.Global,
+    arrowLeft: Iconsax.ArrowLeft,
+    note: Iconsax.Note,
+    magic: Iconsax.MagicStick,
+    tree: Iconsax.InfoCircle, // Using InfoCircle as fallback for tree
+    leaf: Iconsax.InfoCircle, // Using InfoCircle as fallback for leaf
   }
 
   const IconComponent = iconComponents[name]
@@ -243,6 +280,7 @@ export const ICON_MAPPINGS: Record<IconSaxName, { iconSax?: string; tabler?: str
   heart: { iconSax: "heart", tabler: "heart" },
   notification: { iconSax: "notification", tabler: "bell" },
   message: { iconSax: "message", tabler: "message" },
+  sms: { iconSax: "sms", tabler: "sms" },
   camera: { iconSax: "camera", tabler: "camera" },
   image: { iconSax: "image", tabler: "photo" },
   document: { iconSax: "document", tabler: "file-text" },
@@ -269,6 +307,7 @@ export const ICON_MAPPINGS: Record<IconSaxName, { iconSax?: string; tabler?: str
   lock: { iconSax: "lock", tabler: "lock" },
   unlock: { iconSax: "unlock", tabler: "unlock" },
   eye: { iconSax: "eye", tabler: "eye" },
+  eyeSlash: { iconSax: "eye-slash", tabler: "eye-off" },
   "eye-off": { iconSax: "eye-slash", tabler: "eye-off" },
   star: { iconSax: "star", tabler: "star" },
   "star-filled": { iconSax: "star-filled", tabler: "star-filled" },
@@ -301,6 +340,22 @@ export const ICON_MAPPINGS: Record<IconSaxName, { iconSax?: string; tabler?: str
   "zoom-in": { iconSax: "zoom-in", tabler: "zoom-in" },
   "zoom-out": { iconSax: "zoom-out", tabler: "zoom-out" },
   resize: { iconSax: "resize", tabler: "maximize" },
+  // Additional icons for Penanaman and RiwayatDetail screens
+  closeCircle: { iconSax: "close-circle", tabler: "x-circle" },
+  tickCircle: { iconSax: "tick-circle", tabler: "check-circle" },
+  hashtag: { iconSax: "hashtag", tabler: "hash" },
+  "grid9": { iconSax: "grid-9", tabler: "grid-9" },
+  cleaning: { iconSax: "cleaning", tabler: "cleaning-services" },
+  danger: { iconSax: "danger", tabler: "alert-triangle" },
+  height: { iconSax: "height", tabler: "height" },
+  arrowRight2: { iconSax: "arrow-right-2", tabler: "arrow-right" },
+  map: { iconSax: "map-1", tabler: "map" },
+  global: { iconSax: "global", tabler: "world" },
+  arrowLeft: { iconSax: "arrow-left", tabler: "arrow-left" },
+  note: { iconSax: "note", tabler: "note" },
+  magic: { iconSax: "magic-stick", tabler: "sparkles" },
+  tree: { iconSax: "tree", tabler: "tree" },
+  leaf: { iconSax: "tree", tabler: "leaf" },
 }
 
 export default IconPack

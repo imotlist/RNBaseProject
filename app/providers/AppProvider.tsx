@@ -16,6 +16,7 @@ import { ThemeProvider } from "../theme/context"
 import { AuthProvider } from "../context/AuthContext"
 import { ConnectionProvider } from "../context/ConnectionContext"
 import { PermissionProvider } from "../context/PermissionContext"
+import { LocationProvider } from "../context/LocationContext"
 import FlashMessage from "./FlashMessageProvider"
 import { BottomSheetProvider } from "./BottomSheetProvider"
 import { PopupMessageProvider } from "./PopupMessageProvider"
@@ -99,14 +100,16 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
           <AuthProvider>
             <ConnectionProvider>
               <PermissionProvider>
-                <ThemeProvider>
-                  <BottomSheetProvider>
-                    <PopupMessageProvider>
-                      {children}
-                      <FlashMessage />
-                    </PopupMessageProvider>
-                  </BottomSheetProvider>
-                </ThemeProvider>
+                <LocationProvider>
+                  <ThemeProvider>
+                    <BottomSheetProvider>
+                      <PopupMessageProvider>
+                        {children}
+                        <FlashMessage />
+                      </PopupMessageProvider>
+                    </BottomSheetProvider>
+                  </ThemeProvider>
+                </LocationProvider>
               </PermissionProvider>
             </ConnectionProvider>
           </AuthProvider>

@@ -3,7 +3,7 @@
  *
  * Presentational component for Auth container screen.
  * Contains only UI rendering logic - no business logic.
- * Includes Formik form with username and password fields.
+ * Includes Formik form with email and password fields.
  *
  * @module screens/Auth
  */
@@ -30,17 +30,17 @@ import { goBack, navigate } from "@/navigators/navigationUtilities"
 // ============================================================================
 
 const INITIAL_VALUES: LoginFormValues = {
-  username: "test@tallygreen.com",
+  email: "test@tallygreen.com",
   password: "password",
 }
 
 const validate = (values: LoginFormValues) => {
   const errors: Partial<Record<keyof LoginFormValues, string>> = {}
 
-  if (!values.username) {
-    errors.username = "Username wajib diisi"
-  } else if (values.username.length < 3) {
-    errors.username = "Username minimal 3 karakter"
+  if (!values.email) {
+    errors.email = "Email wajib diisi"
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
+    errors.email = "Format email tidak valid"
   }
 
   if (!values.password) {
@@ -59,6 +59,7 @@ const validate = (values: LoginFormValues) => {
 const AuthContainerView: React.FC<AuthContainerViewProps> = ({
   isLoading = false,
   onLogin,
+  errorMessage,
 }) => {
   const { theme } = useAppTheme()
   const { layout } = theme
@@ -100,13 +101,20 @@ const AuthContainerView: React.FC<AuthContainerViewProps> = ({
           <View style={[layout.columnCenterPad, { gap: scale(20), alignItems: "center" }]}>
             <Text size="xxl">Login Disini</Text>
             <Text size="md" style={{ textAlign: "center" }}>
-              Ketik username dan password untuk masuk dan mulai kelola perawatan tanaman Anda!
+              Ketik email dan password untuk masuk dan mulai kelola perawatan tanaman Anda!
             </Text>
             <Image
               source={require("@assets/images/LoginIcon.png")}
               style={{ width: scale(250), height: scale(250), resizeMode: "contain" }}
             />
           </View>
+
+          {/* Error Message */}
+          {errorMessage && (
+            <View style={{ backgroundColor: theme.colors.palette.error500, padding: scale(12), borderRadius: scale(8) }}>
+              <Text size="sm" style={{ color: "white" }}>{errorMessage}</Text>
+            </View>
+          )}
 
           {/* Form Section */}
           <Formik
@@ -118,18 +126,18 @@ const AuthContainerView: React.FC<AuthContainerViewProps> = ({
           >
             {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isValid }) => (
               <View style={{ gap: scale(16) }}>
-                {/* Username Field */}
-                <Text weight="normal" >Username</Text>
+                {/* Email Field */}
+                <Text weight="normal">Email</Text>
                 <TextField
-                  placeholder="username"
+                  placeholder="email@example.com"
                   rounded="full"
-                  value={values.username}
-                  onChangeText={handleChange("username")}
-                  onBlur={handleBlur("username")}
-                  status={touched.username && errors.username ? "error" : undefined}
-                  helper={touched.username && errors.username ? errors.username : undefined}
+                  value={values.email}
+                  onChangeText={handleChange("email")}
+                  onBlur={handleBlur("email")}
+                  status={touched.email && errors.email ? "error" : undefined}
+                  helper={touched.email && errors.email ? errors.email : undefined}
                   LeftAccessory={() => (
-                    <IconPack name="user" size={scale(20)} color={theme.colors.textDim} />
+                    <IconPack name="message" size={scale(20)} color={theme.colors.textDim} />
                   )}
                 />
 
@@ -161,6 +169,7 @@ const AuthContainerView: React.FC<AuthContainerViewProps> = ({
                   onPress={() => handleSubmit()}
                   color="primary"
                   text="Login Sekarang"
+                  disabled={isLoading}
                 />
               </View>
 

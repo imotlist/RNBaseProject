@@ -18,6 +18,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-controller"
 import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
 import { ExtendedEdge, useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
+import { setNavigationBar } from "@/services/sytemBars"
 
 export const DEFAULT_BOTTOM_OFFSET = 50
 
@@ -268,6 +269,7 @@ export function Screen(props: ScreenProps) {
   const isFocused = useIsFocused();
 
   useEffect(() => {
+    setNavigationBar("#000000", false)
     if(isFocused) {
       // console.log("Screen focused - setting status bar color", finalStatusBarBackgroundColor);
       StatusBar.setBackgroundColor(finalStatusBarBackgroundColor)

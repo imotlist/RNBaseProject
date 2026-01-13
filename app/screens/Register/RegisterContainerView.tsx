@@ -94,6 +94,7 @@ const validate = (values: RegisterFormValues) => {
 const RegisterContainerView: React.FC<RegisterContainerViewProps> = ({
   isLoading = false,
   onRegister,
+  errorMessage,
 }) => {
   const { theme } = useAppTheme()
   const { layout } = theme
@@ -149,6 +150,13 @@ const RegisterContainerView: React.FC<RegisterContainerViewProps> = ({
               Buat akun baru untuk mulai kelola perawatan tanaman Anda!
             </Text>
           </View>
+
+          {/* Error Message */}
+          {errorMessage && (
+            <View style={{ backgroundColor: theme.colors.palette.error500, padding: scale(12), borderRadius: scale(8) }}>
+              <Text size="sm" style={{ color: "white" }}>{errorMessage}</Text>
+            </View>
+          )}
 
           {/* Form Section */}
           <Formik
@@ -260,6 +268,7 @@ const RegisterContainerView: React.FC<RegisterContainerViewProps> = ({
                   onPress={() => handleSubmit()}
                   color="primary"
                   text="Daftar Sekarang"
+                  disabled={isLoading}
                 />
               </View>
             )}

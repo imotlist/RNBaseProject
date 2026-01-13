@@ -47,6 +47,18 @@ const palette = {
   error800: "#991B1B",
   error900: "#7F1D1D",
 
+    // Error color palette
+  danger50: "#FEF2F2",
+  danger100: "#FEE2E2",
+  danger200: "#FECACA",
+  danger300: "#FCA5A5",
+  danger400: "#F87171",
+  danger500: "#EF4444", // Main error
+  danger600: "#DC2626",
+  danger700: "#B91C1C",
+  danger800: "#991B1B",
+  danger900: "#7F1D1D",
+
 
   // Success color palette
   success50: "#F0FDF4",

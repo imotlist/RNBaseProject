@@ -12,6 +12,8 @@ import { Platform, View } from "react-native"
 
 // Component showcase screens
 import Home from "@/screens/Home"
+import PenanamanScreen from "@/screens/Penanaman"
+import RiwayatScreen from "@/screens/Riwayat"
 import { ButtonsScreen } from "@/screens/Buttons/ButtonsContainer"
 import { InputsScreen } from "@/screens/Inputs/InputsContainer"
 import { TogglesScreen } from "@/screens/Toggles/TogglesContainer"
@@ -24,6 +26,7 @@ import { ProfileScreen } from "@/screens/Profile/ProfileContainer"
 import { setNavigationBar } from "@/services/sytemBars"
 import { IconPack } from "@/components/ui"
 import InfiniteListExampleScreen from "@/screens/InfiniteListExampleScreen"
+import { scale } from "@/utils/responsive"
 
 const Tab = createBottomTabNavigator<MainTabParamList>()
 
@@ -44,7 +47,7 @@ export const MainTabNavigator = () => {
           tabBarActiveTintColor: theme.colors.tint,
           tabBarInactiveTintColor: theme.colors.textDim,
           tabBarStyle: {
-            backgroundColor: theme.colors.palette.neutral100,
+            backgroundColor: 'white',
             borderTopColor: theme.colors.separator,
             borderTopWidth: .5,
             paddingBottom: insets.bottom,
@@ -63,15 +66,31 @@ export const MainTabNavigator = () => {
           component={Home as any}
           options={{
             tabBarLabel: "Home",
-            tabBarIcon: ({ color }) => <IconPack name="home" size={24} color={color} />,
+            tabBarIcon: ({ color, focused }) => <IconPack name="home" size={scale(26)} color={color} variant={focused ? "Bold" : "Linear"} />,
           }}
         />
         <Tab.Screen
+          name="Penanaman"
+          component={PenanamanScreen as any}
+          options={{
+            tabBarLabel: "Penanaman",
+            tabBarIcon: ({ color, focused }) => <IconPack name="scan" size={scale(26)} color={color} variant={focused ? "Bold" : "Linear"} />,
+          }}
+        />
+        <Tab.Screen
+          name="Riwayat"
+          component={RiwayatScreen as any}
+          options={{
+            tabBarLabel: "Riwayat",
+            tabBarIcon: ({ color, focused }) => <IconPack name="list" size={scale(26)} color={color} variant={focused ? "Bold" : "Linear"} />,
+          }}
+        />
+        {/* <Tab.Screen
           name="Data"
           component={DataItemsScreen as any}
           options={{
             tabBarLabel: "Data",
-            tabBarIcon: ({ color }) => <IconPack name="document" size={24} color={color} />,
+            tabBarIcon: ({ color, focused }) => <IconPack name="document" size={scale(26)} color={color} variant={focused ? "Bold" : "Linear"} />,
           }}
         />
         <Tab.Screen
@@ -79,15 +98,15 @@ export const MainTabNavigator = () => {
           component={ListsScreen as any}
           options={{
             tabBarLabel: "List",
-            tabBarIcon: ({ color }) => <IconPack name="list" size={24} color={color} />,
+            tabBarIcon: ({ color, focused }) => <IconPack name="list" size={scale(26)} color={color} variant={focused ? "Bold" : "Linear"} />,
           }}
-        />
+        /> */}
         <Tab.Screen
           name="Profile"
           component={ProfileScreen as any}
           options={{
             tabBarLabel: "Profile",
-            tabBarIcon: ({ color }) => <IconPack name="user" size={24} color={color} />,
+            tabBarIcon: ({ color, focused }) => <IconPack name="user" size={scale(26)} color={color} variant={focused ? "Bold" : "Linear"} />,
           }}
         />
 

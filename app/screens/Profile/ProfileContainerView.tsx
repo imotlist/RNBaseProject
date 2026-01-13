@@ -7,292 +7,253 @@
  * @module screens/Profile
  */
 
-import React, { useEffect, useState } from "react"
-import { View, StyleSheet, ScrollView } from "react-native"
+import React, { useState } from "react"
+import { View, StyleSheet, ScrollView, TouchableOpacity, Image, RefreshControl, Dimensions } from "react-native"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
-import { Avatar } from "@/components/ui"
-import { ListItem } from "@/components/ListItem"
-import { Button } from "@/components/Button"
-import { TitleBar } from "@/components/ui"
-import { useAppTheme } from "@/theme/context"
-import { goBack } from "@/navigators/navigationUtilities"
-import { scale } from "@/utils/responsive"
-import { useIsFocused, useNavigation } from "@react-navigation/native"
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export interface ProfileData {
-  id: string
-  title: string
-  value: string | number
-  [key: string]: any
-}
-
-export interface ProfileContainerViewProps {
-  selectedData: ProfileData | null
-  onSelectData: (data: ProfileData) => void
-  onActionPress: () => void
-  onRefresh: () => Promise<void>
-  isLoading?: boolean
-}
+import { IconPack } from "@/components/ui/IconPack/IconPack"
+import { scale, scaleFontSize } from "@/utils/responsive"
+import type { ProfileContainerViewProps } from "./ProfileContainer"
 
 // ============================================================================
 // View Component
 // ============================================================================
 
 const ProfileContainerView: React.FC<ProfileContainerViewProps> = ({
-  onActionPress,
+  user,
+  isLoading,
+  city,
+  onLogout,
+  onRefresh,
+  onEditProfile,
+  onChangeDistrict,
 }) => {
-  const { theme } = useAppTheme()
-  const navigation = useNavigation()
-  const statusBarColor = 'white'
-  const [useColor, setUseColor] = useState(statusBarColor)
-  const isFocused = useIsFocused()
+  const [refreshing, setRefreshing] = useState(false)
 
-  useEffect(() => {
-    if (isFocused) {
-      setUseColor(statusBarColor)
-    }
-  }, [isFocused, statusBarColor])
+  const handleRefresh = async () => {
+    setRefreshing(true)
+    await onRefresh()
+    setRefreshing(false)
+  }
+
+  const userName = user?.name || user?.username || "Guest User"
+  const userEmail = user?.email || "guest@example.com"
+  const avatarText = userName.charAt(0).toUpperCase()
+
   return (
     <Screen preset="scroll" safeAreaEdges={["top"]}>
-      <TitleBar title="Profile" showBack={true} onBackPress={goBack} backgroundColor={useColor} />
+      <ScrollView
+        style={styles.container}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+        }
+      >
+        {/* Header */}
+        <Text style={styles.headerTitle}>Profil Saya</Text>
 
+        {/* Profile Picture */}
+        <View style={[styles.avatarContainer, {marginBottom:scale(40)}]}>
+          {user?.avatar ? (
+            <Image source={{ uri: user.avatar }} style={styles.avatarImage} />
+          ) : (
+            <View style={[styles.avatarPlaceholder, { backgroundColor: "#E0E0E0" }]}>
+              <Text style={styles.avatarText}>{avatarText}</Text>
+            </View>
+          )}
+        </View>
 
-      <ScrollView style={$flex1} keyboardShouldPersistTaps="handled">
-        {/* Profile Header */}
-        <View style={[styles.profileHeader, { backgroundColor: theme.colors.palette.neutral100 }]}>
-          <Avatar
-            size="xlarge"
-            source="https://i.pravatar.cc/300?img=12"
-            borderColor={theme.colors.tint}
-            borderWidth={3}
-          />
-          <Text preset="heading" style={styles.profileName}>
-            John Doe
-          </Text>
-          <Text style={[styles.profileEmail, { color: theme.colors.textDim }]}>
-            john.doe@example.com
-          </Text>
-          <View style={[styles.roleBadge, { backgroundColor: theme.colors.tint }]}>
-            <Text style={styles.roleText}>Administrator</Text>
+        {/* Account Info Card */}
+        <View style={[styles.card, { borderColor: "#E8F5E9" }]}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>Informasi Akun</Text>
+            {onEditProfile && (
+              <TouchableOpacity style={styles.editButton} onPress={onEditProfile}>
+                <Text style={styles.editButtonText}>Edit</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          <View style={styles.cardContent}>
+            <InfoRow label="Nama Lengkap" value={userName} />
+            <InfoRow label="Email" value={userEmail} />
+            <InfoRow label="Password" value="********" />
           </View>
         </View>
 
-        {/* Stats Section */}
-        <View style={styles.statsSection}>
-          <View style={styles.statItem}>
-            <Text preset="heading" style={[styles.statValue, { color: theme.colors.tint }]}>
-              24
-            </Text>
-            <Text style={[styles.statLabel, { color: theme.colors.textDim }]}>Projects</Text>
+        {/* District Info Card */}
+        <View style={[styles.card, { borderColor: "#E8F5E9" }]}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>Informasi Kabupaten</Text>
+            {onChangeDistrict && (
+              <TouchableOpacity style={styles.editButton} onPress={onChangeDistrict}>
+                <Text style={styles.editButtonText}>Ubah Kabupaten</Text>
+              </TouchableOpacity>
+            )}
           </View>
-          <View style={[styles.statDivider, { backgroundColor: theme.colors.separator }]} />
-          <View style={styles.statItem}>
-            <Text preset="heading" style={[styles.statValue, { color: theme.colors.tint }]}>
-              128
-            </Text>
-            <Text style={[styles.statLabel, { color: theme.colors.textDim }]}>Tasks</Text>
-          </View>
-          <View style={[styles.statDivider, { backgroundColor: theme.colors.separator }]} />
-          <View style={styles.statItem}>
-            <Text preset="heading" style={[styles.statValue, { color: theme.colors.tint }]}>
-              12
-            </Text>
-            <Text style={[styles.statLabel, { color: theme.colors.textDim }]}>Teams</Text>
+          <View style={styles.cardContent}>
+            <InfoRow label="Kode Kabupaten" value={city?.id ? `KAB-${city.id.slice(0, 8)}...` : "-"} />
+            <InfoRow label="Nama Kabupaten" value={city?.name || "-"} />
+            <InfoRow
+              label="Koordinat"
+              value={city?.latitude && city?.longitude ? `${city.latitude}, ${city.longitude}` : "-"}
+            />
           </View>
         </View>
 
-        {/* Account Section */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.textDim }]}>
-            Account
-          </Text>
-          <ListItem
-            leftIcon="community"
-            text="Edit Profile"
-            rightIcon="caretRight"
-            bottomSeparator
-            onPress={() => console.log("Edit Profile")}
-          />
-          <ListItem
-            leftIcon="lock"
-            text="Change Password"
-            rightIcon="caretRight"
-            bottomSeparator
-            onPress={() => console.log("Change Password")}
-          />
-          <ListItem
-            leftIcon="bell"
-            text="Notifications"
-            rightIcon="caretRight"
-            onPress={() => console.log("Notifications")}
-          />
-        </View>
+        {/* Logout & Version */}
+        <TouchableOpacity style={styles.logoutButton} onPress={onLogout}>
+          <IconPack name="logout" size={scale(20)} color="#E53935" />
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
 
-        {/* Preferences Section */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.textDim }]}>
-            Preferences
-          </Text>
-          <ListItem
-            leftIcon="view"
-            text="Appearance"
-            rightIcon="caretRight"
-            bottomSeparator
-            onPress={() => console.log("Appearance")}
-          />
-          <ListItem
-            leftIcon="github"
-            text="Language"
-            rightIcon="caretRight"
-            bottomSeparator
-            onPress={() => console.log("Language")}
-          />
-          <ListItem
-            leftIcon="hidden"
-            text="Privacy"
-            rightIcon="caretRight"
-            onPress={() => console.log("Privacy")}
-          />
-        </View>
-
-        {/* Support Section */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.textDim }]}>
-            Support
-          </Text>
-          <ListItem
-            leftIcon="ladybug"
-            text="Help Center"
-            rightIcon="caretRight"
-            bottomSeparator
-            onPress={() => console.log("Help Center")}
-          />
-          <ListItem
-            leftIcon="components"
-            text="Terms of Service"
-            rightIcon="caretRight"
-            bottomSeparator
-            onPress={() => console.log("Terms")}
-          />
-          <ListItem
-            leftIcon="components"
-            text="About"
-            rightIcon="caretRight"
-            onPress={() => console.log("About")}
-          />
-        </View>
-
-        {/* Logout Button */}
-        <View style={styles.logoutSection}>
-          <Button
-            text="Log Out"
-            preset="default"
-            color="danger"
-            style={styles.logoutButton}
-            onPress={onActionPress}
-          />
-        </View>
-
-        {/* Version Info */}
-        <Text style={[styles.versionText, { color: theme.colors.textDim }]}>
-          Version 1.0.0
-        </Text>
+        <Text style={styles.versionText}>Version Apps v1.5</Text>
       </ScrollView>
     </Screen>
   )
 }
 
-export default ProfileContainerView
+// ============================================================================
+// Subcomponents
+// ============================================================================
+
+interface InfoRowProps {
+  label: string
+  value: string
+}
+
+const InfoRow: React.FC<InfoRowProps> = ({ label, value }) => {
+  return (
+    <View style={styles.infoRow}>
+      <View style={styles.infoLabelContainer}>
+        <IconPack name="tickCircle" size={scale(16)} color="#8BC34A" />
+        <Text style={styles.infoLabel}>{label}</Text>
+      </View>
+      <Text style={styles.infoValue}>{value}</Text>
+    </View>
+  )
+}
 
 // ============================================================================
 // Styles
 // ============================================================================
 
 const styles = StyleSheet.create({
-  profileHeader: {
-    alignItems: "center",
-    padding: 24,
-    marginBottom: 8,
+  container: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: scale(16),
+    minHeight: Dimensions.get('window').height
   },
-  profileName: {
-    fontSize: 24,
+  headerTitle: {
+    fontSize: scaleFontSize(20),
     fontWeight: "bold",
-    marginTop: 12,
+    color: "#333333",
+    textAlign: "center",
+    marginTop: scale(16),
+    marginBottom: scale(8),
   },
-  profileEmail: {
-    fontSize: 14,
-    marginTop: 4,
+  avatarContainer: {
+    alignItems: "center",
+    marginVertical: scale(16),
   },
-  roleBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginTop: 12,
+  avatarImage: {
+    width: scale(120),
+    height: scale(120),
+    borderRadius: scale(60),
+    backgroundColor: "#E0E0E0",
   },
-  roleText: {
-    fontSize: 12,
+  avatarPlaceholder: {
+    width: scale(120),
+    height: scale(120),
+    borderRadius: scale(60),
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "#E0E0E0",
+  },
+  avatarText: {
+    fontSize: scaleFontSize(48),
     fontWeight: "600",
-    color: "white",
-    textTransform: "uppercase",
+    color: "#666666",
   },
-  statsSection: {
+  card: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: scale(12),
+    borderWidth: 1,
+    padding: scale(16),
+    marginBottom: scale(16),
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: scale(16),
+  },
+  cardTitle: {
+    fontSize: scaleFontSize(16),
+    fontWeight: "bold",
+    color: "#333333",
+  },
+  editButton: {
+    paddingHorizontal: scale(16),
+    paddingVertical: scale(6),
+    borderRadius: scale(20),
+    borderWidth: 1,
+    borderColor: "#8BC34A",
+  },
+  editButtonText: {
+    fontSize: scaleFontSize(12),
+    fontWeight: "600",
+    color: "#8BC34A",
+  },
+  cardContent: {
+    gap: scale(12),
+  },
+  infoRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  infoLabelContainer: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-around",
-    paddingVertical: 20,
-    backgroundColor: "#fff",
-    marginBottom: 8,
+    gap: scale(8),
   },
-  statItem: {
-    alignItems: "center",
+  infoLabel: {
+    fontSize: scaleFontSize(14),
+    fontWeight: "500",
+    color: "#333333",
+  },
+  infoValue: {
+    fontSize: scaleFontSize(14),
+    color: "#666666",
     flex: 1,
-  },
-  statValue: {
-    fontSize: 24,
-  },
-  statLabel: {
-    fontSize: 12,
-    marginTop: 4,
-  },
-  statDivider: {
-    width: 1,
-    height: 40,
-  },
-  section: {
-    marginBottom: 8,
-    backgroundColor: "#fff",
-  },
-  sectionTitle: {
-    fontSize: 12,
-    fontWeight: "600",
-    textTransform: "uppercase",
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 8,
-  },
-  logoutSection: {
-    padding: 16,
+    textAlign: "right",
   },
   logoutButton: {
-    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: scale(16),
+    marginBottom: scale(8),
+    gap: scale(8),
+  },
+  logoutText: {
+    fontSize: scaleFontSize(16),
+    fontWeight: "500",
+    color: "#E53935",
   },
   versionText: {
-    fontSize: 12,
+    fontSize: scaleFontSize(12),
+    color: "#666666",
     textAlign: "center",
-    paddingBottom: 24,
+    marginBottom: scale(32),
   },
 })
 
-const $outerStyle = {
-  flex: 1,
-}
-
-const $flex1 = {
-  flex: 1,
-  paddingHorizontal: scale(20),
-}
+export default ProfileContainerView

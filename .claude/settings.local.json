@@ -17,7 +17,12 @@
       "Bash(taskkill:*)",
       "Bash(netstat:*)",
       "Bash(xargs:*)",
-      "Bash(npx expo start --clear)"
+      "Bash(npx expo start --clear)",
+      "Bash(npm run generate:screen:*)",
+      "Bash(npx nx g feature:*)",
+      "Read(//d/Ptpn3Audithink/src/libs/**)",
+      "Bash(dir:*)",
+      "Bash(cmd.exe:*)"
     ]
   }
 }

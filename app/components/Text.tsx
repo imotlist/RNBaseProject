@@ -51,6 +51,11 @@ export interface TextProps extends RNTextProps {
    */
   color?: Colors
   /**
+   * Custom color string (e.g., "#FF0000", "rgb(255, 0, 0)", "red").
+   * Overrides the `color` prop if both are provided.
+   */
+  customColor?: string
+  /**
    * Text style variant (normal, italic, bold).
    */
   textStyle?: TextStyles
@@ -72,6 +77,7 @@ export const Text = forwardRef(function Text(props: TextProps, ref: ForwardedRef
     weight,
     size,
     color,
+    customColor,
     textStyle,
     tx,
     txOptions,
@@ -91,7 +97,8 @@ export const Text = forwardRef(function Text(props: TextProps, ref: ForwardedRef
     themed($presets[preset]),
     weight && $fontWeightStyles[weight],
     size && $sizeStyles[size],
-    color && $colorStyles[color](theme),
+    customColor && { color: customColor },
+    !customColor && color && $colorStyles[color](theme),
     textStyle && $textStyleStyles[textStyle],
     $styleOverride,
   ]

@@ -28,6 +28,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { AuthProvider } from "./context/AuthContext"
 import { ConnectionProvider } from "./context/ConnectionContext"
 import { PermissionProvider } from "./context/PermissionContext"
+import { LocationProvider } from "./context/LocationContext"
 import { initI18n } from "./i18n"
 import { AppNavigator } from "./navigators/AppNavigator"
 import { useNavigationPersistence } from "./navigators/navigationUtilities"
@@ -117,7 +118,8 @@ export function App() {
           <AuthProvider>
             <ConnectionProvider>
               <PermissionProvider>
-                <ThemeProvider initialContext="light">
+                <LocationProvider>
+                  <ThemeProvider initialContext="light">
                   <BottomSheetProvider>
                     <PopupMessageProvider>
                       <AppNavigator
@@ -129,6 +131,7 @@ export function App() {
                     </PopupMessageProvider>
                   </BottomSheetProvider>
                 </ThemeProvider>
+              </LocationProvider>
               </PermissionProvider>
             </ConnectionProvider>
           </AuthProvider>

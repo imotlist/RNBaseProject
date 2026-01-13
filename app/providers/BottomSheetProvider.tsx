@@ -12,6 +12,7 @@ export interface BottomSheetParams {
   snapPoints?: string[]
   renderContent: () => ReactNode
   backdropCloses?: boolean
+  preventClose?: boolean // Prevent closing by swipe down (useful for long content)
 }
 
 interface BottomSheetContextValue {
@@ -29,12 +30,14 @@ export const BottomSheetProvider: React.FC<BottomSheetProviderProps> = ({ childr
   const bottomSheetRef = useRef<BottomSheet>(null)
   const [content, setContent] = useState<ReactNode>(null)
   const [snapPoints, setSnapPoints] = useState<string[]>(["50%"])
+  const [preventClose, setPreventClose] = useState(false)
 
   const showBottomSheet = useCallback((params: BottomSheetParams) => {
     setContent(params.renderContent())
     if (params.snapPoints) {
       setSnapPoints(params.snapPoints)
     }
+    setPreventClose(params.preventClose ?? false)
     setTimeout(() => {
       bottomSheetRef.current?.expand()
     }, 50)
@@ -48,6 +51,7 @@ export const BottomSheetProvider: React.FC<BottomSheetProviderProps> = ({ childr
     if (index === -1) {
       setTimeout(() => {
         setContent(null)
+        setPreventClose(false)
       }, 300)
     }
   }, [])
@@ -60,9 +64,10 @@ export const BottomSheetProvider: React.FC<BottomSheetProviderProps> = ({ childr
           disappearsOnIndex={-1}
           appearsOnIndex={0}
           opacity={0.5}
+          onPress={() => !preventClose && closeBottomSheet()}
         />
       ) : null,
-    [],
+    [preventClose, closeBottomSheet],
   )
 
   return (
@@ -76,7 +81,8 @@ export const BottomSheetProvider: React.FC<BottomSheetProviderProps> = ({ childr
         backdropComponent={renderBackdrop}
         backgroundStyle={styles.background}
         handleIndicatorStyle={styles.indicator}
-        enablePanDownToClose={true}
+        enablePanDownToClose={!preventClose}
+        animateOnMount={true}
       >
         <BottomSheetView style={styles.contentContainer}>
           {content && <View style={styles.contentInner}>{content}</View>}
@@ -108,9 +114,9 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    height: "100%",
   },
   contentInner: {
     flex: 1,
+    height: "100%",
   },
 })

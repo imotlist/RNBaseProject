@@ -70,6 +70,8 @@ export interface AvatarProps {
    * Whether the avatar is disabled (grays out)
    */
   disabled?: boolean
+
+  imageAsIcon?: boolean
 }
 
 export const Avatar: React.FC<AvatarProps> = ({
@@ -87,6 +89,7 @@ export const Avatar: React.FC<AvatarProps> = ({
   borderWidth,
   containerStyle,
   disabled = false,
+  imageAsIcon = false,
 }) => {
   const { theme } = useAppTheme()
 
@@ -107,7 +110,7 @@ export const Avatar: React.FC<AvatarProps> = ({
 
   // Calculate icon size (60% of avatar size by default)
   const calculatedIconSize = iconSize || sizeStyles.width * 0.6
-
+  const imageStyle = !imageAsIcon ? styles.imageFull : styles.image;
   return (
     <View
       style={[
@@ -126,7 +129,7 @@ export const Avatar: React.FC<AvatarProps> = ({
       {hasImage ? (
         <Image
           source={source ? { uri: source } : asset}
-          style={[styles.image, { borderRadius }]}
+          style={[imageStyle, { borderRadius }]}
         />
       ) : hasIcon ? (
         <IconPack
@@ -160,6 +163,11 @@ const styles = StyleSheet.create({
   image: {
     width: "60%",
     height: "60%",
+    resizeMode: "cover",
+  },
+  imageFull: {
+    width: "100%",
+    height: "100%",
     resizeMode: "cover",
   },
   text: {

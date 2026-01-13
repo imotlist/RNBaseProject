@@ -6,14 +6,29 @@
 import { ApiResponse, ApisauceInstance, create } from "apisauce"
 import { Platform } from "react-native"
 import NetInfo from "@react-native-community/netinfo"
-import AsyncStorage from "@react-native-async-storage/async-storage"
+import { loadString, saveString, remove } from "@/utils/storage"
 import apiConfig from "./env"
 import { GeneralApiProblem, getGeneralApiProblem } from "./apiProblem"
 import type { ApiConfig } from "./types"
+import { navigationRef } from "@/navigators/navigationUtilities"
 
 const STORAGE_KEYS = {
-  ACCESS_TOKEN: "@tallygreen_access_token",
-  REFRESH_TOKEN: "@tallygreen_refresh_token",
+  ACCESS_TOKEN: "tallygreen_access_token",
+  REFRESH_TOKEN: "tallygreen_refresh_token",
+}
+
+// Flag to prevent multiple logout attempts
+let isLoggingOut = false
+
+// Optional callback for 401 handling to clear AuthContext state
+let onUnauthorizedCallback: (() => void) | null = null
+
+/**
+ * Set a callback to be called when 401Unauthorized occurs
+ * This allows the AuthContext to clear its state
+ */
+export function setOnUnauthorizedCallback(callback: () => void) {
+  onUnauthorizedCallback = callback
 }
 
 /**
@@ -57,7 +72,6 @@ export type ApiResult<T> = { kind: "ok"; data: T } | GeneralApiProblem
 export class ApiService {
   private apisauce: ApisauceInstance
   private config: ApiConfig
-  private navigation: any = null
 
   constructor(config: ApiConfig = API_CONFIG) {
     this.config = config
@@ -102,9 +116,9 @@ export class ApiService {
   /**
    * Add authentication token to request
    */
-  private async addAuthToken(request: any) {
+  private addAuthToken(request: any) {
     try {
-      const token = await AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
+      const token = loadString(STORAGE_KEYS.ACCESS_TOKEN)
       if (token) {
         request.headers["Authorization"] = `Bearer ${token}`
       }
@@ -117,23 +131,44 @@ export class ApiService {
    * Handle 401 Unauthorized response
    */
   private handleUnauthorized() {
-    // Clear stored tokens
-    AsyncStorage.multiRemove([STORAGE_KEYS.ACCESS_TOKEN, STORAGE_KEYS.REFRESH_TOKEN])
+    // Prevent multiple logout attempts
+    if (isLoggingOut) return
+    isLoggingOut = true
 
-    // Navigate to login
-    if (this.navigation) {
-      this.navigation.reset({
+    console.log("[API] Handling 401 Unauthorized - logging out...")
+
+    // Call the callback to clear AuthContext state
+    if (onUnauthorizedCallback) {
+      try {
+        onUnauthorizedCallback()
+      } catch (err) {
+        console.error("[API] Error in unauthorized callback:", err)
+      }
+    }
+
+    // Clear stored tokens from MMKV
+    try {
+      remove(STORAGE_KEYS.ACCESS_TOKEN)
+      remove(STORAGE_KEYS.REFRESH_TOKEN)
+    } catch (err) {
+      console.error("[API] Error clearing tokens:", err)
+    }
+
+    // Clear Authorization header
+    this.apisauce.deleteHeader("Authorization")
+
+    // Navigate to Auth screen using navigationRef
+    if (navigationRef.isReady()) {
+      navigationRef.resetRoot({
         index: 0,
         routes: [{ name: "Auth" }],
       })
     }
-  }
 
-  /**
-   * Set navigation reference for redirects
-   */
-  setNavigation(navigation: any) {
-    this.navigation = navigation
+    // Reset flag after a delay
+    setTimeout(() => {
+      isLoggingOut = false
+    }, 1000)
   }
 
   /**
@@ -148,7 +183,7 @@ export class ApiService {
    * Set authentication token
    */
   async setAuthToken(token: string): Promise<void> {
-    await AsyncStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token)
+    saveString(STORAGE_KEYS.ACCESS_TOKEN, token)
     this.apisauce.setHeader("Authorization", `Bearer ${token}`)
   }
 
@@ -156,7 +191,8 @@ export class ApiService {
    * Clear authentication token
    */
   async clearAuthToken(): Promise<void> {
-    await AsyncStorage.multiRemove([STORAGE_KEYS.ACCESS_TOKEN, STORAGE_KEYS.REFRESH_TOKEN])
+    remove(STORAGE_KEYS.ACCESS_TOKEN)
+    remove(STORAGE_KEYS.REFRESH_TOKEN)
     this.apisauce.deleteHeader("Authorization")
   }
 
@@ -164,7 +200,7 @@ export class ApiService {
    * Get current access token
    */
   async getAccessToken(): Promise<string | null> {
-    return AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
+    return loadString(STORAGE_KEYS.ACCESS_TOKEN)
   }
 
   /**
@@ -312,3 +348,24 @@ export class ApiService {
 export const apiService = new ApiService()
 
 export default apiService
+
+/**
+ * Get user-friendly error message from ApiResult
+ */
+export function getApiErrorMessage(result: ApiResult<any>): string {
+  if (result.kind === "ok") {
+    return "Unknown error"
+  }
+
+  const errorMessages: Record<string, string> = {
+    "timeout": "Request timeout. Please check your connection.",
+    "cannot-connect": "No internet connection. Please check your network.",
+    "unauthorized": "Unauthorized access. Please login again.",
+    "forbidden": "Access denied.",
+    "not-found": "Resource not found.",
+    "server": "Server error. Please try again later.",
+    "unknown": "An unexpected error occurred.",
+  }
+
+  return errorMessages[result.kind] || errorMessages.unknown
+}

@@ -7,6 +7,7 @@ import React from "react"
 import { View, StyleSheet, ViewStyle, } from "react-native"
 import { useAppTheme } from "@/theme/context"
 import { scale, moderateScale } from "@/utils/responsive"
+import { colors } from "@/theme/colors"
 
 type FrameColor = "primary" | "secondary" | "success" | "warning" | "danger" | "info" | "neutral"
 type FrameRounded = "none" | "sm" | "md" | "lg" | "full"
@@ -47,7 +48,7 @@ export interface FrameProps {
 }
 
 const FRAME_COLORS: Record<FrameColor, { border: string; bg: string }> = {
-  primary: { border: "#4A90E2", bg: "#EBF5FF" },
+  primary: { border: colors.palette.primary600, bg: colors.palette.primary50 },
   secondary: { border: "#8E8E93", bg: "#F2F2F7" },
   success: { border: "#4CAF50", bg: "#E8F5E9" },
   warning: { border: "#FF9800", bg: "#FFF3E0" },

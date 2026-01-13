@@ -217,6 +217,7 @@ function InfiniteListInner<T>({
     <FlatList
       ref={listRef}
       data={data}
+      style={{backgroundColor:'white'}}
       keyExtractor={keyExtractor || ((item, index) => `${index}-${JSON.stringify(item)}`)}
       renderItem={({ item, index }) => renderItem(item, index)}
       ListEmptyComponent={data.length === 0 && !isLoading ? RenderEmpty : undefined}

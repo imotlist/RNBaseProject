@@ -9,7 +9,8 @@
  */
 
 import React, { ReactNode } from "react"
-import { View, StyleSheet, Pressable, ViewStyle, ScrollView } from "react-native"
+import { View, StyleSheet, Pressable, ViewStyle } from "react-native"
+import { BottomSheetScrollView } from "@gorhom/bottom-sheet"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 import { useAppTheme } from "@/theme/context"
 import { scale, scaleFontSize } from "@/utils/responsive"
@@ -70,10 +71,6 @@ export interface BottomSheetContentProps {
    */
   primaryDisabled?: boolean
   /**
-   * Whether to make content scrollable
-   */
-  scrollable?: boolean
-  /**
    * Whether to show scroll indicators
    */
   showsVerticalScrollIndicator?: boolean
@@ -125,21 +122,10 @@ export const BottomSheetContent: React.FC<BottomSheetContentProps> = ({
   style,
   contentStyle,
   primaryDisabled = false,
-  scrollable = true,
   showsVerticalScrollIndicator = true,
 }) => {
   const { theme } = useAppTheme()
   const footerSafeArea = useSafeAreaInsetsStyle(["bottom"], "padding")
-
-  const ContentWrapper = scrollable ? ScrollView : View
-  const contentProps = scrollable
-    ? {
-        showsVerticalScrollIndicator,
-        contentContainerStyle: [styles.contentInner, contentStyle],
-        bounces: true,
-        style: styles.scrollView,
-      }
-    : { style: [styles.content, contentStyle] }
 
   return (
     <View style={[styles.container, style]}>
@@ -167,9 +153,13 @@ export const BottomSheetContent: React.FC<BottomSheetContentProps> = ({
       )}
 
       {/* Body */}
-      <View style={styles.bodyWrapper}>
-        <ContentWrapper {...contentProps}>{children}</ContentWrapper>
-      </View>
+      <BottomSheetScrollView
+        showsVerticalScrollIndicator={showsVerticalScrollIndicator}
+        contentContainerStyle={[styles.contentInner, contentStyle]}
+        style={styles.scrollView}
+      >
+        {children}
+      </BottomSheetScrollView>
 
       {/* Footer */}
       {(primaryButtonLabel || secondaryButtonLabel) && (
@@ -221,7 +211,6 @@ const styles = StyleSheet.create({
     flex: 1,
     height: "100%",
     backgroundColor: "#fff",
-    paddingBottom: scale(2),
   },
   header: {
     flexDirection: "row",
@@ -247,7 +236,6 @@ const styles = StyleSheet.create({
   },
   bodyWrapper: {
     flex: 1,
-    overflow: "hidden",
   },
   scrollView: {
     flex: 1,
@@ -261,6 +249,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(20),
     paddingTop: scale(16),
     paddingBottom: scale(16),
+    flexGrow: 1,
   },
   footer: {
     flexDirection: "row",

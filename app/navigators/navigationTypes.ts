@@ -6,6 +6,7 @@ import {
   NavigatorScreenParams,
 } from "@react-navigation/native"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
+import type { UserData } from "@/context/AuthContext"
 
 // Auth Navigator types
 export type AuthStackParamList = {
@@ -18,6 +19,8 @@ export type AuthStackParamList = {
 // Tab Navigator types
 export type MainTabParamList = {
   Home: undefined
+  Penanaman: undefined
+  Riwayat: undefined
   Data: { tab?: string }
   Profile: undefined
   Components: undefined
@@ -40,6 +43,10 @@ export type AppStackParamList = {
   Main: NavigatorScreenParams<MainTabParamList>
   // Standalone screens
   Developer: undefined
+  // Feature screens
+  RiwayatDetail: { id: string | number }
+  RiwayatTanaman: { plantId: string; plantName?: string }
+  ProfileEdit: { user?: UserData }
   // Component showcase screens
   ButtonsScreen: undefined
   InputsScreen: undefined

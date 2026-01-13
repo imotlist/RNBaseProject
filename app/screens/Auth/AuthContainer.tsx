@@ -12,27 +12,23 @@ import { useCallback, useState } from "react"
 import { FormikHelpers } from "formik"
 import { useAuth } from "@/context/AuthContext"
 import AuthContainerView from "./AuthContainerView"
-import { de } from "date-fns/locale"
+import * as authApi from "@/services/api/apisCollection/auth"
+import { getFCMToken } from "@/utils/fcm"
+import type { UserData } from "@/services/api/apisCollection/auth"
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export interface AuthData {
-  id: string
-  title: string
-  value: string | number
-  [key: string]: any
-}
-
 export interface LoginFormValues {
-  username: string
+  email: string
   password: string
 }
 
 export interface AuthContainerViewProps {
   isLoading: boolean
   onLogin: (values: LoginFormValues, helpers: FormikHelpers<LoginFormValues>) => void
+  errorMessage?: string | null
 }
 
 // ============================================================================
@@ -40,35 +36,59 @@ export interface AuthContainerViewProps {
 // ============================================================================
 
 const AuthContainer = () => {
-  const { setAuthToken } = useAuth()
+  const { login } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   // Handle form submission
   const handleLogin = useCallback(
     async (values: LoginFormValues, helpers: FormikHelpers<LoginFormValues>) => {
       setIsLoading(true)
+      setErrorMessage(null)
+
       try {
-        console.log("Login values:", values)
+        // Get FCM token for push notifications
+        const fcmToken = await getFCMToken()
 
-        // TODO: Implement actual API call
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 1500))
+        // Call login API
+        const response = await authApi.login({
+          email: values.email,
+          password: values.password,
+          fcm_token: fcmToken || undefined,
+        })
 
-        // Mock successful login - set auth token
-        setAuthToken(String(Date.now()))
+        // Convert API user data to match context UserData
+        const userData: UserData = {
+          id: response.user.id,
+          name: response.user.name,
+          username: response.user.username || response.user.name,
+          email: response.user.email,
+          role: response.user.role,
+          city_id: response.user.city_id,
+          avatar: response.user.avatar,
+        }
 
-        // Reset form on success
+        // Successful login - store user data in context
+        await login(userData, response.access_token)
         helpers.resetForm()
       } catch (error) {
         console.error("Login error:", error)
+        const message = error instanceof Error ? error.message : "Login failed. Please try again."
+        setErrorMessage(message)
       } finally {
         setIsLoading(false)
       }
     },
-    [setAuthToken],
+    [login],
   )
 
-  return <AuthContainerView isLoading={isLoading} onLogin={handleLogin} />
+  return (
+    <AuthContainerView
+      isLoading={isLoading}
+      onLogin={handleLogin}
+      errorMessage={errorMessage}
+    />
+  )
 }
 
 export default AuthContainer
