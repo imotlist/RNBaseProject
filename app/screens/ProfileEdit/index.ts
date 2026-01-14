@@ -7,5 +7,5 @@
  * @module screens/ProfileEdit
  */
 
-export { ProfileEditScreen as default } from "./ProfileEditContainer"
-export type { ProfileEditContainerViewProps, ProfileEditData } from "./types"
+export { default } from "./ProfileEdit"
+export type { ProfileEditScreenViewProps, ProfileEditData, FormErrors } from "./types"

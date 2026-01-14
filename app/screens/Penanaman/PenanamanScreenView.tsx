@@ -1,40 +1,25 @@
 /**
- * PenanamanContainerView.tsx
+ * PenanamanScreenView.tsx
  *
- * Presentational component for Penanaman container screen.
+ * Presentational component for Penanaman screen.
  * Contains UI for plant monitoring form with image upload.
  *
  * @module screens/Penanaman
  */
 
 import React, { useState, useEffect } from "react"
-import { View, StyleSheet, ScrollView, TouchableOpacity, Alert, Pressable, Image, TextInput as RNTextInput, Modal, Dimensions } from "react-native"
+import { View, StyleSheet, ScrollView, TouchableOpacity, Alert, Image, TextInput as RNTextInput, Modal, Dimensions } from "react-native"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
 import { Button } from "@/components/Button"
 import { IconPack } from "@/components/ui/IconPack"
-import { Frame } from "@/components/ui/Frame"
-import { Avatar } from "@/components/ui/Avatar"
 import { TextField } from "@/components/TextField"
 import { Dropdown } from "@/components/ui"
 import type { DropdownOption } from "@/components/ui"
 import { scale, scaleFontSize } from "@/utils/responsive"
 import { useAppTheme } from "@/theme/context"
-import { Formik } from "formik"
 import * as ImagePicker from "react-native-image-picker"
-import { useIsFocused } from "@react-navigation/native"
-import type { TanamanFormValues } from "./PenanamanContainer"
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export interface PenanamanContainerViewProps {
-  isLoading: boolean
-  onSubmit: (values: TanamanFormValues) => Promise<void>
-  initialLocation?: { latitude: string; longitude: string }
-  onGetLocation: () => Promise<{ latitude: string; longitude: string } | null>
-}
+import type { PenanamanScreenViewProps, TanamanFormValues } from "./Penanaman"
 
 // ============================================================================
 // Form Config
@@ -100,17 +85,17 @@ const ESTIMASI_TINGGI_OPTIONS: DropdownOption[] = [
 // View Component
 // ============================================================================
 
-const PenanamanContainerView: React.FC<PenanamanContainerViewProps> = ({
+const PenanamanScreenView: React.FC<PenanamanScreenViewProps> = ({
   isLoading,
-  onSubmit,
+  statusBarColor,
+  isFocused,
   initialLocation,
+  onSubmit,
   onGetLocation,
 }) => {
   const { theme } = useAppTheme()
   const { colors } = theme
-  const statusBarColor = colors.palette.primary700
   const [useColor, setUseColor] = useState(statusBarColor)
-  const isFocused = useIsFocused()
 
   // Form states
   const [namaTanaman, setNamaTanaman] = useState("")
@@ -171,7 +156,7 @@ const PenanamanContainerView: React.FC<PenanamanContainerViewProps> = ({
   }
 
   // Handle get location
-  const handleGetLocation = async () => {
+  const handleGetLocationPress = async () => {
     try {
       const loc = await onGetLocation()
       if (loc) {
@@ -184,7 +169,7 @@ const PenanamanContainerView: React.FC<PenanamanContainerViewProps> = ({
   }
 
   // Handle submit
-  const handleSubmit = async () => {
+  const handleSubmitPress = async () => {
     // Validate all required fields
     if (!imageUri) {
       Alert.alert("Error", "Silakan ambil atau pilih foto tanaman")
@@ -234,7 +219,7 @@ const PenanamanContainerView: React.FC<PenanamanContainerViewProps> = ({
       longitude: location.longitude,
     }
 
-    onSubmit(values)
+    await onSubmit(values)
 
     // Reset form on success
     resetForm()
@@ -398,7 +383,7 @@ const PenanamanContainerView: React.FC<PenanamanContainerViewProps> = ({
               <Text style={styles.sectionLabel}>Lokasi *</Text>
               <TouchableOpacity
                 style={[styles.getLocationButton, { backgroundColor: colors.tint }]}
-                onPress={handleGetLocation}
+                onPress={handleGetLocationPress}
               >
                 <IconPack name="map" size={scale(16)} color="white" />
                 <Text style={styles.getLocationButtonText}>Get Lokasi</Text>
@@ -441,7 +426,7 @@ const PenanamanContainerView: React.FC<PenanamanContainerViewProps> = ({
               size="large"
               color="primary"
               rounded="full"
-              onPress={handleSubmit}
+              onPress={handleSubmitPress}
               disabled={isLoading || !imageUri}
               style={styles.submitButton}
             />
@@ -477,7 +462,7 @@ const PenanamanContainerView: React.FC<PenanamanContainerViewProps> = ({
   )
 }
 
-export default PenanamanContainerView
+export default PenanamanScreenView
 
 // ============================================================================
 // Styles

@@ -22,7 +22,7 @@ import { ListsScreen } from "@/screens/Lists/ListsList"
 import { AvatarsScreen } from "@/screens/Avatars/AvatarsContainer"
 import { FiltersScreen } from "@/screens/Filters/FiltersContainer"
 import { DataItemsScreen } from "@/screens/DataItems/DataItemsList"
-import { ProfileScreen } from "@/screens/Profile/ProfileContainer"
+import Profile from "@/screens/Profile/Profile"
 import { setNavigationBar } from "@/services/sytemBars"
 import { IconPack } from "@/components/ui"
 import InfiniteListExampleScreen from "@/screens/InfiniteListExampleScreen"
@@ -103,7 +103,7 @@ export const MainTabNavigator = () => {
         /> */}
         <Tab.Screen
           name="Profile"
-          component={ProfileScreen as any}
+          component={Profile as any}
           options={{
             tabBarLabel: "Profile",
             tabBarIcon: ({ color, focused }) => <IconPack name="user" size={scale(26)} color={color} variant={focused ? "Bold" : "Linear"} />,

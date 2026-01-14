@@ -1,5 +1,5 @@
 /**
- * ProfileEditContainerView.tsx
+ * ProfileEditScreenView.tsx
  *
  * Presentational component for ProfileEdit screen.
  * Contains the profile edit form UI with account info
@@ -16,14 +16,14 @@ import { IconPack } from "@/components/ui/IconPack/IconPack"
 import { TitleBar } from "@/components/ui"
 import { scale, scaleFontSize } from "@/utils/responsive"
 import { useAppTheme } from "@/theme/context"
-import type { ProfileEditContainerViewProps, ProfileEditData } from "./types"
+import type { ProfileEditScreenViewProps, ProfileEditData } from "./types"
 import { goBack } from "@/navigators/navigationUtilities"
 
 // ============================================================================
 // View Component
 // ============================================================================
 
-const ProfileEditContainerView: React.FC<ProfileEditContainerViewProps> = ({
+const ProfileEditScreenView: React.FC<ProfileEditScreenViewProps> = ({
   user,
   isSubmitting,
   errors,
@@ -234,7 +234,7 @@ const ProfileEditContainerView: React.FC<ProfileEditContainerViewProps> = ({
   )
 }
 
-export default ProfileEditContainerView
+export default ProfileEditScreenView
 
 // ============================================================================
 // Styles

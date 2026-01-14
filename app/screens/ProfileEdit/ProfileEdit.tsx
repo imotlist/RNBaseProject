@@ -1,5 +1,5 @@
 /**
- * ProfileEditContainer.tsx
+ * ProfileEdit.tsx
  *
  * Container component for ProfileEdit screen.
  * Handles profile editing logic with state management,
@@ -15,11 +15,11 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import type { AppStackParamList } from "@/navigators/navigationTypes"
 import { useAuth } from "@/context/AuthContext"
 import * as authApi from "@/services/api/apisCollection/auth"
-import ProfileEditContainerView from "./ProfileEditContainerView"
+import ProfileEditScreenView from "./ProfileEditScreenView"
 import type { FormErrors } from "./types"
 
 // Re-export types for use in other files
-export type { ProfileEditContainerViewProps, ProfileEditData, FormErrors } from "./types"
+export type { ProfileEditScreenViewProps, ProfileEditData, FormErrors } from "./types"
 
 type ProfileEditScreenRouteProp = RouteProp<AppStackParamList, "ProfileEdit">
 type ProfileEditScreenNavigationProp = NativeStackNavigationProp<AppStackParamList, "ProfileEdit">
@@ -33,7 +33,7 @@ interface ProfileEditScreenProps {
 // Screen Component
 // ============================================================================
 
-export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ route }) => {
+const ProfileEdit: React.FC<ProfileEditScreenProps> = ({ route }) => {
   const navigation = useNavigation<ProfileEditScreenNavigationProp>()
   const { user: authUser, login } = useAuth()
 
@@ -144,7 +144,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ route }) =
   }, [navigation])
 
   return (
-    <ProfileEditContainerView
+    <ProfileEditScreenView
       user={user}
       isSubmitting={isSubmitting}
       errors={errors}
@@ -168,4 +168,4 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ route }) =
   )
 }
 
-export default ProfileEditScreen
+export default ProfileEdit

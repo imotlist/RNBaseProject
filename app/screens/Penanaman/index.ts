@@ -7,5 +7,5 @@
  * @module screens/Penanaman
  */
 
-export {default} from "./PenanamanContainer"
-export type { TanamanFormValues, PenanamanContainerViewProps } from "./PenanamanContainer"
+export { default } from "./Penanaman"
+export type { TanamanFormValues, PenanamanScreenViewProps } from "./Penanaman"

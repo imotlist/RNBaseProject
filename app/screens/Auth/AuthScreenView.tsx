@@ -1,7 +1,7 @@
 /**
- * AuthContainerView.tsx
+ * AuthScreenView.tsx
  *
- * Presentational component for Auth container screen.
+ * Presentational component for Auth screen.
  * Contains only UI rendering logic - no business logic.
  * Includes Formik form with email and password fields.
  *
@@ -9,21 +9,20 @@
  */
 
 import React, { useEffect, useState } from "react"
-import { View, ScrollView, ActivityIndicator, RefreshControl, Pressable } from "react-native"
+import { View, ScrollView, Pressable } from "react-native"
 import { Formik } from "formik"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
 import { scale } from "@/utils/responsive"
 import { useAppTheme } from "@/theme/context"
-import styles from "./AuthContainer.styles"
+import styles from "./AuthScreen.styles"
 import { useIsFocused } from "@react-navigation/native"
 import { Image } from "expo-image"
-import type { LoginFormValues, AuthContainerViewProps } from "./AuthContainer"
+import type { LoginFormValues, AuthScreenViewProps } from "./Auth"
 import { Button } from "@/components/Button"
-import { Input, IconPack } from "@/components/ui"
+import { IconPack } from "@/components/ui"
 import { TextField } from "@/components/TextField"
-import { Size } from "iconsax-react-native"
-import { goBack, navigate } from "@/navigators/navigationUtilities"
+import { navigate } from "@/navigators/navigationUtilities"
 
 // ============================================================================
 // Form Config
@@ -56,7 +55,7 @@ const validate = (values: LoginFormValues) => {
 // View Component
 // ============================================================================
 
-const AuthContainerView: React.FC<AuthContainerViewProps> = ({
+const AuthScreenView: React.FC<AuthScreenViewProps> = ({
   isLoading = false,
   onLogin,
   errorMessage,
@@ -74,17 +73,9 @@ const AuthContainerView: React.FC<AuthContainerViewProps> = ({
     }
   }, [isFocused, statusBarColor])
 
-  const handleRefresh = async () => {
-    // Placeholder refresh - not used in login
-    console.log("Refresh triggered")
-  }
-
   return (
     <Screen preset="fixed" safeAreaEdges={["top"]} statusBarBackgroundColor={useColor} backgroundColor={useColor}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={handleRefresh} />}
-      >
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         <View
           style={[
             styles.containerPadding,
@@ -124,7 +115,7 @@ const AuthContainerView: React.FC<AuthContainerViewProps> = ({
             validateOnChange={true}
             validateOnBlur={true}
           >
-            {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isValid }) => (
+            {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
               <View style={{ gap: scale(16) }}>
                 {/* Email Field */}
                 <Text weight="normal">Email</Text>
@@ -172,7 +163,6 @@ const AuthContainerView: React.FC<AuthContainerViewProps> = ({
                   disabled={isLoading}
                 />
               </View>
-
             )}
           </Formik>
           <View style={{ marginVertical: scale(20) }}>
@@ -184,4 +174,4 @@ const AuthContainerView: React.FC<AuthContainerViewProps> = ({
   )
 }
 
-export default AuthContainerView
+export default AuthScreenView

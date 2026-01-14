@@ -1,9 +1,9 @@
 /**
- * ProfileScreen.tsx
+ * Profile.tsx
  *
- * Container-based screen template for Profile feature.
+ * Container-based screen for Profile feature.
  * This file contains the screen controller logic with state management
- * and event handlers for container-style screens.
+ * and event handlers.
  *
  * @module screens/Profile
  */
@@ -13,7 +13,7 @@ import { Alert } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import type { AppStackParamList } from "@/navigators/navigationTypes"
-import ProfileContainerView from "./ProfileContainerView"
+import ProfileScreenView from "./ProfileScreenView"
 import { useAuth } from "@/context/AuthContext"
 import type { UserData, City } from "@/context/AuthContext"
 import * as authApi from "@/services/api/apisCollection/auth"
@@ -22,7 +22,7 @@ import * as authApi from "@/services/api/apisCollection/auth"
 // Types
 // ============================================================================
 
-export interface ProfileContainerViewProps {
+export interface ProfileScreenViewProps {
   user?: UserData | null
   isLoading?: boolean
   city?: City | null
@@ -36,7 +36,7 @@ export interface ProfileContainerViewProps {
 // Screen Component
 // ============================================================================
 
-export const ProfileScreen = () => {
+const Profile = () => {
   const { user, logout } = useAuth()
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
   const [isLoading, setIsLoading] = useState(false)
@@ -91,15 +91,17 @@ export const ProfileScreen = () => {
     console.log("Change district")
   }, [])
 
-  return (
-    <ProfileContainerView
-      user={profileData || user}
-      isLoading={isLoading}
-      city={profileData?.city || null}
-      onLogout={handleLogout}
-      onRefresh={fetchProfile}
-      onEditProfile={handleEditProfile}
-      onChangeDistrict={handleChangeDistrict}
-    />
-  )
+  const viewProps: ProfileScreenViewProps = {
+    user: profileData || user,
+    isLoading,
+    city: profileData?.city || null,
+    onLogout: handleLogout,
+    onRefresh: fetchProfile,
+    onEditProfile: handleEditProfile,
+    onChangeDistrict: handleChangeDistrict,
+  }
+
+  return <ProfileScreenView {...viewProps} />
 }
+
+export default Profile

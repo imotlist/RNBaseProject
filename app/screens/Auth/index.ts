@@ -7,7 +7,5 @@
  * @module screens/Auth
  */
 
-import AuthContainer from "./AuthContainer"
-export type { AuthData } from "./AuthContainer"
-
-export default AuthContainer
+export { default } from "./Auth"
+export type { LoginFormValues, AuthScreenViewProps } from "./Auth"

@@ -1,5 +1,5 @@
 /**
- * RiwayatDetailContainer.tsx
+ * RiwayatDetail.tsx
  *
  * Container-based screen for monitoring detail.
  * Contains the screen controller logic with state management and API calls.
@@ -10,7 +10,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native"
 import { Alert } from "react-native"
-import RiwayatDetailContainerView from "./RiwayatDetailContainerView"
+import RiwayatDetailScreenView from "./RiwayatDetailScreenView"
 import * as riwayatApi from "@/services/api/apisCollection/riwayat"
 import type { MonitoringHistoryItem } from "@/services/api/apisCollection/riwayat"
 import type { AppStackScreenProps } from "@/navigators/navigationTypes"
@@ -29,7 +29,6 @@ export type RiwayatDetailRoute = RouteProp<
 >
 
 export interface MonitoringDetail extends MonitoringHistoryItem {
-  // Additional fields from API
   zona?: string
   blok?: string
   tinggi_tanaman ?: string
@@ -41,11 +40,22 @@ export interface MonitoringDetail extends MonitoringHistoryItem {
   verified_by_ai?: boolean
 }
 
+export interface RiwayatDetailScreenViewProps {
+  isLoading: boolean
+  isDeleting: boolean
+  detail: MonitoringDetail | null
+  error: string | null
+  onBack: () => void
+  onDelete: () => void
+  onRetry: () => void
+  onViewPlantHistory: () => void
+}
+
 // ============================================================================
 // Screen Component
 // ============================================================================
 
-export const RiwayatDetailContainer = () => {
+const RiwayatDetail = () => {
   const route = useRoute<RiwayatDetailRoute>()
   const navigation = useNavigation<AppStackScreenProps<"RiwayatDetail">["navigation"]>()
   const { id } = route.params
@@ -118,18 +128,18 @@ export const RiwayatDetailContainer = () => {
     fetchDetail()
   }, [fetchDetail])
 
-  return (
-    <RiwayatDetailContainerView
-      isLoading={isLoading}
-      isDeleting={isDeleting}
-      detail={detail}
-      error={error}
-      onBack={handleBack}
-      onDelete={handleDelete}
-      onRetry={fetchDetail}
-      onViewPlantHistory={handleViewPlantHistory}
-    />
-  )
+  const viewProps: RiwayatDetailScreenViewProps = {
+    isLoading,
+    isDeleting,
+    detail,
+    error,
+    onBack: handleBack,
+    onDelete: handleDelete,
+    onRetry: fetchDetail,
+    onViewPlantHistory: handleViewPlantHistory,
+  }
+
+  return <RiwayatDetailScreenView {...viewProps} />
 }
 
-export default RiwayatDetailContainer
+export default RiwayatDetail

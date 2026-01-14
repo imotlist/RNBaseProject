@@ -7,9 +7,10 @@
  * @module screens/RiwayatDetail
  */
 
-export { default } from "./RiwayatDetailContainer"
+export { default } from "./RiwayatDetail"
 export type {
   MonitoringDetail,
+  RiwayatDetailScreenViewProps,
   RiwayatDetailRouteParams,
   RiwayatDetailRoute,
-} from "./RiwayatDetailContainer"
+} from "./RiwayatDetail"

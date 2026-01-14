@@ -1,5 +1,5 @@
 /**
- * RiwayatDetailContainerView.tsx
+ * RiwayatDetailScreenView.tsx
  *
  * Presentational component for RiwayatDetail screen.
  * Contains UI for displaying plant monitoring detail.
@@ -23,11 +23,8 @@ import { IconPack } from "@/components/ui/IconPack"
 import { Avatar } from "@/components/ui/Avatar"
 import { scale, scaleFontSize } from "@/utils/responsive"
 import { useAppTheme } from "@/theme/context"
-import type { MonitoringDetail } from "./RiwayatDetailContainer"
+import type { MonitoringDetail, RiwayatDetailScreenViewProps } from "./RiwayatDetail"
 import { Frame, ImageViewer } from "@/components/ui"
-
-// ============================================================================
-// Types
 // ============================================================================
 
 export interface RiwayatDetailContainerViewProps {
@@ -66,7 +63,7 @@ const formatTime = (dateString: string) => {
 // View Component
 // ============================================================================
 
-const RiwayatDetailContainerView: React.FC<RiwayatDetailContainerViewProps> = ({
+const RiwayatDetailScreenView: React.FC<RiwayatDetailScreenViewProps> = ({
   isLoading,
   isDeleting,
   detail,
@@ -599,4 +596,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default RiwayatDetailContainerView
+export default RiwayatDetailScreenView

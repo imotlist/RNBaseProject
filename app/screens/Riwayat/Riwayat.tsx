@@ -71,7 +71,7 @@ const SORT_OPTIONS = [
 // Screen Component
 // ============================================================================
 
-export const RiwayatScreen = () => {
+const RiwayatScreen = () => {
   const { theme } = useAppTheme()
   const { showBottomSheet, closeBottomSheet } = useBottomSheet()
   const navigation = useNavigation<AppStackScreenProps<"RiwayatDetail">["navigation"]>()

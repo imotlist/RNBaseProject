@@ -1,17 +1,17 @@
 /**
- * RegisterContainer.tsx
+ * Auth.tsx
  *
- * Container-based screen template for Register feature.
+ * Container-based screen for Auth feature.
  * This file contains the screen controller logic with state management
- * and event handlers for container-style screens.
+ * and event handlers.
  *
- * @module screens/Register
+ * @module screens/Auth
  */
 
 import { useCallback, useState } from "react"
 import { FormikHelpers } from "formik"
 import { useAuth } from "@/context/AuthContext"
-import RegisterContainerView from "./RegisterContainerView"
+import AuthScreenView from "./AuthScreenView"
 import * as authApi from "@/services/api/apisCollection/auth"
 import { getFCMToken } from "@/utils/fcm"
 import type { UserData } from "@/services/api/apisCollection/auth"
@@ -20,22 +20,14 @@ import type { UserData } from "@/services/api/apisCollection/auth"
 // Types
 // ============================================================================
 
-export interface CityOption {
-  id: string | number
-  name: string
-}
-
-export interface RegisterFormValues {
-  username: string
+export interface LoginFormValues {
   email: string
-  city_id: string | number
   password: string
-  password_confirmation: string
 }
 
-export interface RegisterContainerViewProps {
+export interface AuthScreenViewProps {
   isLoading: boolean
-  onRegister: (values: RegisterFormValues, helpers: FormikHelpers<RegisterFormValues>) => void
+  onLogin: (values: LoginFormValues, helpers: FormikHelpers<LoginFormValues>) => void
   errorMessage?: string | null
 }
 
@@ -43,14 +35,14 @@ export interface RegisterContainerViewProps {
 // Screen Component
 // ============================================================================
 
-const RegisterContainer = () => {
+const Auth = () => {
   const { login } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   // Handle form submission
-  const handleRegister = useCallback(
-    async (values: RegisterFormValues, helpers: FormikHelpers<RegisterFormValues>) => {
+  const handleLogin = useCallback(
+    async (values: LoginFormValues, helpers: FormikHelpers<LoginFormValues>) => {
       setIsLoading(true)
       setErrorMessage(null)
 
@@ -58,13 +50,10 @@ const RegisterContainer = () => {
         // Get FCM token for push notifications
         const fcmToken = await getFCMToken()
 
-        // Call register API
-        const response = await authApi.register({
-          username: values.username,
+        // Call login API
+        const response = await authApi.login({
           email: values.email,
-          city_id: values.city_id,
           password: values.password,
-          password_confirmation: values.password_confirmation,
           fcm_token: fcmToken || undefined,
         })
 
@@ -79,12 +68,12 @@ const RegisterContainer = () => {
           avatar: response.user.avatar,
         }
 
-        // Successful registration - store user data in context
+        // Successful login - store user data in context
         await login(userData, response.access_token)
         helpers.resetForm()
       } catch (error) {
-        console.error("Register error:", error)
-        const message = error instanceof Error ? error.message : "Registration failed. Please try again."
+        console.error("Login error:", error)
+        const message = error instanceof Error ? error.message : "Login failed. Please try again."
         setErrorMessage(message)
       } finally {
         setIsLoading(false)
@@ -93,13 +82,13 @@ const RegisterContainer = () => {
     [login],
   )
 
-  return (
-    <RegisterContainerView
-      isLoading={isLoading}
-      onRegister={handleRegister}
-      errorMessage={errorMessage}
-    />
-  )
+  const viewProps: AuthScreenViewProps = {
+    isLoading,
+    onLogin: handleLogin,
+    errorMessage,
+  }
+
+  return <AuthScreenView {...viewProps} />
 }
 
-export default RegisterContainer
+export default Auth

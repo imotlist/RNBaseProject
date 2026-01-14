@@ -26,7 +26,7 @@ import { ListsScreen } from "@/screens/Lists/ListsList"
 import { AvatarsScreen } from "@/screens/Avatars/AvatarsContainer"
 import { FiltersScreen } from "@/screens/Filters/FiltersContainer"
 import { DataItemsScreen } from "@/screens/DataItems/DataItemsList"
-import { ProfileScreen } from "@/screens/Profile/ProfileContainer"
+import Profile  from "@/screens/Profile/Profile"
 import RiwayatDetailScreen from "@/screens/RiwayatDetail"
 import RiwayatTanamanScreen from "@/screens/RiwayatTanaman"
 import ProfileEditScreen from "@/screens/ProfileEdit"
@@ -96,7 +96,7 @@ const AppStack = () => {
           <Stack.Screen name="AvatarsScreen" component={AvatarsScreen} />
           <Stack.Screen name="FiltersScreen" component={FiltersScreen} />
           <Stack.Screen name="DataItemsScreen" component={DataItemsScreen} />
-          <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
+          <Stack.Screen name="ProfileScreen" component={Profile} />
         </>
       ) : (
         <>

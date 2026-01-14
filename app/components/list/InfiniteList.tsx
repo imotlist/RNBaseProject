@@ -32,6 +32,22 @@ import { useInfiniteList, UseInfiniteListOptions, UseInfiniteListReturn } from "
 // Types
 // ============================================================================
 
+export interface EmptyStateProps {
+  icon?: string
+  title?: string
+  message?: string
+  actionLabel?: string
+  onAction?: () => void
+}
+
+export interface ErrorStateProps {
+  icon?: string
+  title?: string
+  message?: string
+  actionLabel?: string
+  onAction?: () => void
+}
+
 export interface InfiniteListProps<T> {
   /**
    * Configuration for the infinite list hook
@@ -53,6 +69,14 @@ export interface InfiniteListProps<T> {
    * Custom error component
    */
   ErrorComponent?: React.FC<{ error: Error; onRetry: () => void }>
+  /**
+   * Empty state configuration (object with icon, title, message)
+   */
+  emptyState?: EmptyStateProps
+  /**
+   * Error state configuration (object with icon, title, message)
+   */
+  errorState?: ErrorStateProps
   /**
    * Custom loading component
    */
@@ -135,6 +159,8 @@ function InfiniteListInner<T>({
   keyExtractor,
   EmptyComponent,
   ErrorComponent,
+  emptyState,
+  errorState,
   LoadingComponent,
   FooterLoadingComponent,
   EndIndicatorComponent,
@@ -164,15 +190,40 @@ function InfiniteListInner<T>({
   } = listState
 
   // Default empty state
-  const DefaultEmptyComponent = () => (
-    <ListEmpty
-      title={emptyText || "No items found"}
-      message={searchQuery?.length ? "Try adjusting your search" : undefined}
-    />
-  )
+  const DefaultEmptyComponent = () => {
+    if (emptyState) {
+      return (
+        <ListEmpty
+          icon={emptyState.icon as any}
+          title={emptyState.title}
+          message={emptyState.message}
+          actionLabel={emptyState.actionLabel}
+          onAction={emptyState.onAction}
+        />
+      )
+    }
+    return (
+      <ListEmpty
+        title={emptyText || "No items found"}
+        message={searchQuery?.length ? "Try adjusting your search" : undefined}
+      />
+    )
+  }
 
   // Default error state
-  const DefaultErrorComponent = () => <ListError message={error?.message} onRetry={retry} retryLabel={retryText} />
+  const DefaultErrorComponent = () => {
+    if (errorState) {
+      return (
+        <ListError
+          icon={errorState.icon as any}
+          message={errorState.message || error?.message}
+          onRetry={errorState.onAction || retry}
+          retryLabel={errorState.actionLabel || retryText}
+        />
+      )
+    }
+    return <ListError message={error?.message} onRetry={retry} retryLabel={retryText} />
+  }
 
   // Default loading state
   const DefaultLoadingComponent = () => <ListLoading type="initial" />

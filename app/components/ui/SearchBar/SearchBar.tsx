@@ -4,11 +4,11 @@
  */
 
 import React, { useState, useEffect } from "react"
-import { View, StyleSheet, Pressable, TextInputProps, ViewStyle } from "react-native"
+import { View, StyleSheet, Pressable, TextInputProps, ViewStyle, Text } from "react-native"
 import { useAppTheme } from "@/theme/context"
 import { TextField } from "@/components/TextField"
 import { IconPack } from "@/components/ui/IconPack"
-import { scale, moderateScale } from "@/utils/responsive"
+import { scale, moderateScale, scaleFontSize } from "@/utils/responsive"
 
 type SearchBarSize = "small" | "medium" | "large"
 type SearchBarRounded = "none" | "sm" | "md" | "lg" | "full"
@@ -31,6 +31,10 @@ export interface SearchBarProps {
    */
   showClear?: boolean
   /**
+   * Whether to show filter icon (alias for showFilter)
+   */
+  showFilterButton?: boolean
+  /**
    * Whether to show filter icon
    */
   showFilter?: boolean
@@ -38,6 +42,14 @@ export interface SearchBarProps {
    * Callback when filter button is pressed
    */
   onFilterPress?: () => void
+  /**
+   * Number of active filters to show as badge
+   */
+  filterCount?: number
+  /**
+   * Callback when clear button is pressed
+   */
+  onClear?: () => void
   /**
    * Value
    */
@@ -61,14 +73,19 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   debounceDelay = 300,
   placeholder = "Search...",
   showClear = true,
+  showFilterButton = false,
   showFilter = false,
   onFilterPress,
+  filterCount = 0,
+  onClear,
   value: controlledValue,
   onChangeText,
   size = "medium",
   rounded,
   ...rest
 }) => {
+  // Support both showFilterButton and showFilter props
+  const shouldShowFilter = showFilterButton || showFilter
   const { theme } = useAppTheme()
   const [value, setValue] = useState(controlledValue ?? "")
   const [debouncedValue, setDebouncedValue] = useState(controlledValue ?? "")
@@ -104,6 +121,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     setValue("")
     onChangeText?.("")
     onSearch?.("")
+    onClear?.()
   }
 
   const displayValue = controlledValue !== undefined ? controlledValue : value
@@ -132,9 +150,14 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         size={size}
         {...rest}
       />
-      {showFilter && (
+      {shouldShowFilter && (
         <Pressable onPress={onFilterPress} style={styles.filterButton}>
           <IconPack name="filter" size={20} color={theme.colors.textDim} />
+          {filterCount > 0 && (
+            <View style={[styles.filterBadge, { backgroundColor: theme.colors.palette.primary500 }]}>
+              <Text style={styles.filterBadgeText}>{filterCount > 9 ? "9+" : filterCount}</Text>
+            </View>
+          )}
         </Pressable>
       )}
       {showClear && displayValue && (
@@ -190,6 +213,24 @@ const styles = StyleSheet.create({
     marginLeft: scale(8),
     justifyContent: "center",
     alignItems: "center",
+    position: "relative",
+  },
+  filterBadge: {
+    position: "absolute",
+    top: -2,
+    right: -2,
+    minWidth: scale(16),
+    height: scale(16),
+    borderRadius: scale(8),
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: scale(4),
+  },
+  filterBadgeText: {
+    fontSize: scaleFontSize(10),
+    fontWeight: "600",
+    color: "#fff",
+    lineHeight: scale(14),
   },
 })
 

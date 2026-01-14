@@ -1,26 +1,26 @@
 /**
- * RegisterContainerView.tsx
+ * RegisterScreenView.tsx
  *
- * Presentational component for Register container screen.
+ * Presentational component for Register screen.
  * Contains only UI rendering logic - no business logic.
  * Includes Formik form with username, email, city, password fields.
  *
  * @module screens/Register
  */
 
-import React, { useEffect, useState, useMemo } from "react"
-import { View, ScrollView, ActivityIndicator, RefreshControl, Pressable } from "react-native"
+import React, { useEffect, useState } from "react"
+import { View, ScrollView, Pressable } from "react-native"
 import { Formik } from "formik"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
 import { scale } from "@/utils/responsive"
 import { useAppTheme } from "@/theme/context"
-import styles from "./RegisterContainer.styles"
+import styles from "./RegisterScreen.styles"
 import { useIsFocused } from "@react-navigation/native"
 import { Image } from "expo-image"
-import type { RegisterFormValues, RegisterContainerViewProps, CityOption } from "./RegisterContainer"
+import type { RegisterFormValues, RegisterScreenViewProps, CityOption } from "./Register"
 import { Button } from "@/components/Button"
-import { IconPack, Dropdown, DropdownOption } from "@/components/ui"
+import { IconPack, Dropdown } from "@/components/ui"
 import { TextField } from "@/components/TextField"
 import { navigate } from "@/navigators/navigationUtilities"
 
@@ -91,7 +91,7 @@ const validate = (values: RegisterFormValues) => {
 // View Component
 // ============================================================================
 
-const RegisterContainerView: React.FC<RegisterContainerViewProps> = ({
+const RegisterScreenView: React.FC<RegisterScreenViewProps> = ({
   isLoading = false,
   onRegister,
   errorMessage,
@@ -284,4 +284,4 @@ const RegisterContainerView: React.FC<RegisterContainerViewProps> = ({
   )
 }
 
-export default RegisterContainerView
+export default RegisterScreenView

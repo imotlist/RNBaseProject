@@ -1,7 +1,7 @@
 /**
- * ProfileContainerView.tsx
+ * ProfileScreenView.tsx
  *
- * Presentational component for Profile container screen.
+ * Presentational component for Profile screen.
  * Displays user profile information and settings.
  *
  * @module screens/Profile
@@ -13,13 +13,13 @@ import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
 import { IconPack } from "@/components/ui/IconPack/IconPack"
 import { scale, scaleFontSize } from "@/utils/responsive"
-import type { ProfileContainerViewProps } from "./ProfileContainer"
+import type { ProfileScreenViewProps } from "./Profile"
 
 // ============================================================================
 // View Component
 // ============================================================================
 
-const ProfileContainerView: React.FC<ProfileContainerViewProps> = ({
+const ProfileScreenView: React.FC<ProfileScreenViewProps> = ({
   user,
   isLoading,
   city,
@@ -256,4 +256,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default ProfileContainerView
+export default ProfileScreenView

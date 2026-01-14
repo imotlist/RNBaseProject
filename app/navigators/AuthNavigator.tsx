@@ -12,7 +12,7 @@ import type { AuthStackParamList } from "./navigationTypes"
 import { LoginScreen } from "@/screens/LoginScreen"
 import AuthContainer from "@/screens/Auth"
 import { IntroScreen } from "@/screens/IntroScreen"
-import { RegisterContainer } from "@/screens/Register"
+import Register from "@/screens/Register"
 
 const Stack = createNativeStackNavigator<AuthStackParamList>()
 
@@ -33,7 +33,7 @@ export const AuthNavigator = () => {
       {/* Intro/Onboarding screen - shown on first launch */}
       <Stack.Screen name="Intro" component={IntroScreen} />
       <Stack.Screen name="Login" component={AuthContainer} />
-      <Stack.Screen name="Register" component={RegisterContainer} />
+      <Stack.Screen name="Register" component={Register} />
     </Stack.Navigator>
   )
 }

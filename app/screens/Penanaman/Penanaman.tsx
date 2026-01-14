@@ -1,5 +1,5 @@
 /**
- * PenanamanContainer.tsx
+ * Penanaman.tsx
  *
  * Container-based screen for Penanaman feature.
  * This file contains the screen controller logic with state management
@@ -9,7 +9,9 @@
  */
 
 import { useCallback, useState } from "react"
-import PenanamanContainerView from "./PenanamanContainerView"
+import { useIsFocused } from "@react-navigation/native"
+import { useAppTheme } from "@/theme/context"
+import PenanamanScreenView from "./PenanamanScreenView"
 import * as penanamanApi from "@/services/api/apisCollection/penanaman"
 import { useCachedLocation } from "@/hooks/useLocation"
 
@@ -32,10 +34,12 @@ export interface TanamanFormValues {
   longitude: string
 }
 
-export interface PenanamanContainerViewProps {
+export interface PenanamanScreenViewProps {
   isLoading: boolean
-  onSubmit: (values: TanamanFormValues) => Promise<void>
+  statusBarColor: string
+  isFocused: boolean
   initialLocation?: { latitude: string; longitude: string }
+  onSubmit: (values: TanamanFormValues) => Promise<void>
   onGetLocation: () => Promise<{ latitude: string; longitude: string } | null>
 }
 
@@ -43,9 +47,13 @@ export interface PenanamanContainerViewProps {
 // Screen Component
 // ============================================================================
 
-const PenanamanContainer = () => {
+const Penanaman = () => {
+  const { theme: { colors } } = useAppTheme()
+  const isFocused = useIsFocused()
   const [isLoading, setIsLoading] = useState(false)
   const { cachedLocation } = useCachedLocation()
+
+  const statusBarColor = colors.palette.primary700
 
   // Get location callback
   const handleGetLocation = useCallback(async () => {
@@ -65,7 +73,7 @@ const PenanamanContainer = () => {
   const handleSubmit = useCallback(
     async (values: TanamanFormValues) => {
       setIsLoading(true)
-      
+
       try {
         // Create FormData for image upload
         const formData = new FormData()
@@ -105,17 +113,19 @@ const PenanamanContainer = () => {
     [],
   )
 
-  return (
-    <PenanamanContainerView
-      isLoading={isLoading}
-      onSubmit={handleSubmit}
-      initialLocation={cachedLocation ? {
-        latitude: cachedLocation.latitude.toString(),
-        longitude: cachedLocation.longitude.toString(),
-      } : undefined}
-      onGetLocation={handleGetLocation}
-    />
-  )
+  const viewProps: PenanamanScreenViewProps = {
+    isLoading,
+    statusBarColor,
+    isFocused,
+    initialLocation: cachedLocation ? {
+      latitude: cachedLocation.latitude.toString(),
+      longitude: cachedLocation.longitude.toString(),
+    } : undefined,
+    onSubmit: handleSubmit,
+    onGetLocation: handleGetLocation,
+  }
+
+  return <PenanamanScreenView {...viewProps} />
 }
 
-export default PenanamanContainer
+export default Penanaman
