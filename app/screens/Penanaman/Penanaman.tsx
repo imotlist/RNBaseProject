@@ -11,6 +11,7 @@
 import { useCallback, useState } from "react"
 import { useIsFocused } from "@react-navigation/native"
 import { useAppTheme } from "@/theme/context"
+import { useLoadingModal } from "@/components/ui"
 import PenanamanScreenView from "./PenanamanScreenView"
 import * as penanamanApi from "@/services/api/apisCollection/penanaman"
 import { useCachedLocation } from "@/hooks/useLocation"
@@ -52,6 +53,7 @@ const Penanaman = () => {
   const isFocused = useIsFocused()
   const [isLoading, setIsLoading] = useState(false)
   const { cachedLocation } = useCachedLocation()
+  const { LoadingModalComponent, showLoading, hideLoading } = useLoadingModal()
 
   const statusBarColor = colors.palette.primary700
 
@@ -73,6 +75,13 @@ const Penanaman = () => {
   const handleSubmit = useCallback(
     async (values: TanamanFormValues) => {
       setIsLoading(true)
+
+      // Show loading modal
+      showLoading({
+        title: "Menyimpan",
+        message: "Sedang menyimpan data penanaman...",
+        subtext: "Mohon tunggu sebentar",
+      })
 
       try {
         // Create FormData for image upload
@@ -108,9 +117,10 @@ const Penanaman = () => {
         throw error
       } finally {
         setIsLoading(false)
+        hideLoading()
       }
     },
-    [],
+    [showLoading, hideLoading],
   )
 
   const viewProps: PenanamanScreenViewProps = {
@@ -125,7 +135,12 @@ const Penanaman = () => {
     onGetLocation: handleGetLocation,
   }
 
-  return <PenanamanScreenView {...viewProps} />
+  return (
+    <>
+      <PenanamanScreenView {...viewProps} />
+      <LoadingModalComponent />
+    </>
+  )
 }
 
 export default Penanaman

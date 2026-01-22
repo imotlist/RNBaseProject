@@ -11,6 +11,8 @@ import Config from "@/config"
 import { useAuth } from "@/context/AuthContext"
 import { ErrorBoundary } from "@/screens/ErrorScreen/ErrorBoundary"
 import { useAppTheme } from "@/theme/context"
+import { DownloadMapScreen } from "@/screens/DownloadMapScreen"
+import { OfflineMapScreen } from "@/screens/OfflineMapScreen"
 
 import { AuthNavigator } from "./AuthNavigator"
 import { MainTabNavigator } from "./MainTabNavigator"
@@ -97,10 +99,36 @@ const AppStack = () => {
           <Stack.Screen name="FiltersScreen" component={FiltersScreen} />
           <Stack.Screen name="DataItemsScreen" component={DataItemsScreen} />
           <Stack.Screen name="ProfileScreen" component={Profile} />
+          {/* Offline Map */}
+          <Stack.Screen
+            name="DownloadMap"
+            component={DownloadMapScreen}
+            options={{
+              headerShown: false,
+              presentation: "card",
+            }}
+          />
+          <Stack.Screen
+            name="OfflineMap"
+            component={OfflineMapScreen}
+            options={{
+              headerShown: false,
+              presentation: "fullScreenModal",
+            }}
+          />
         </>
       ) : (
         <>
           <Stack.Screen name="Auth" component={AuthNavigator} />
+          {/* Offline Map - accessible from auth screen */}
+          <Stack.Screen
+            name="DownloadMap"
+            component={DownloadMapScreen}
+            options={{
+              headerShown: false,
+              presentation: "card",
+            }}
+          />
         </>
       )}
 

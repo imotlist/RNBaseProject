@@ -167,6 +167,21 @@ const AuthScreenView: React.FC<AuthScreenViewProps> = ({
           </Formik>
           <View style={{ marginVertical: scale(20) }}>
             <Text style={{ textAlign: "center" }} size="md">Belum memiliki akun? <Text onPress={()=> navigate('Register')} weight="medium" color="info">Daftar</Text></Text>
+
+            {/* Manage Map Data Button */}
+            <Pressable
+              onPress={() => navigate("DownloadMap")}
+              style={{
+                marginTop: scale(16),
+                paddingVertical: scale(12),
+                alignItems: "center",
+              }}
+            >
+              <IconPack name="map" size={scale(16)} color={theme.colors.palette.neutral500} />
+              <Text size="xs" style={{ color: theme.colors.palette.neutral500, marginTop: scale(4) }}>
+                Kelola Peta Offline
+              </Text>
+            </Pressable>
           </View>
         </View>
       </ScrollView>

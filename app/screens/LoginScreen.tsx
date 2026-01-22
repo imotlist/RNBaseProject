@@ -7,6 +7,7 @@ import { PressableIcon } from "@/components/Icon"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
 import { TextField, type TextFieldAccessoryProps } from "@/components/TextField"
+import { useLoadingModal } from "@/components/ui"
 import { useAuth } from "@/context/AuthContext"
 import type { AppStackScreenProps } from "@/navigators/navigationTypes"
 import type { ThemedStyle } from "@/theme/types"
@@ -23,6 +24,7 @@ export const LoginScreen: FC<LoginScreenProps> = () => {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [attemptsCount, setAttemptsCount] = useState(0)
   const { authEmail, setAuthEmail, setAuthToken, validationError } = useAuth()
+  const { LoadingModalComponent, showLoading, hideLoading } = useLoadingModal()
 
   const {
     themed,
@@ -46,14 +48,25 @@ export const LoginScreen: FC<LoginScreenProps> = () => {
 
     if (validationError) return
 
-    // Make a request to your server to get an authentication token.
-    // If successful, reset the fields and set the token.
-    setIsSubmitted(false)
-    setAuthPassword("")
-    setAuthEmail("")
+    // Show loading modal
+    showLoading({
+      title: "Masuk",
+      message: "Sedang masuk...",
+    })
 
-    // We'll mock this with a fake token.
-    setAuthToken(String(Date.now()))
+    // Simulate API call
+    setTimeout(() => {
+      // Make a request to your server to get an authentication token.
+      // If successful, reset the fields and set the token.
+      setIsSubmitted(false)
+      setAuthPassword("")
+      setAuthEmail("")
+
+      // We'll mock this with a fake token.
+      setAuthToken(String(Date.now()))
+
+      hideLoading()
+    }, 1500)
   }
 
   const PasswordRightAccessory: ComponentType<TextFieldAccessoryProps> = useMemo(
@@ -73,55 +86,58 @@ export const LoginScreen: FC<LoginScreenProps> = () => {
   )
 
   return (
-    <Screen
-      preset="auto"
-      contentContainerStyle={themed($screenContentContainer)}
-      safeAreaEdges={["top", "bottom"]}
-    >
-      <Text testID="login-heading" tx="loginScreen:logIn" preset="heading" style={themed($logIn)} />
-      <Text tx="loginScreen:enterDetails" preset="subheading" style={themed($enterDetails)} />
-      {attemptsCount > 2 && (
-        <Text tx="loginScreen:hint" size="sm" weight="light" style={themed($hint)} />
-      )}
+    <>
+      <Screen
+        preset="auto"
+        contentContainerStyle={themed($screenContentContainer)}
+        safeAreaEdges={["top", "bottom"]}
+      >
+        <Text testID="login-heading" tx="loginScreen:logIn" preset="heading" style={themed($logIn)} />
+        <Text tx="loginScreen:enterDetails" preset="subheading" style={themed($enterDetails)} />
+        {attemptsCount > 2 && (
+          <Text tx="loginScreen:hint" size="sm" weight="light" style={themed($hint)} />
+        )}
 
-      <TextField
-        value={authEmail}
-        onChangeText={setAuthEmail}
-        containerStyle={themed($textField)}
-        autoCapitalize="none"
-        autoComplete="email"
-        autoCorrect={false}
-        keyboardType="email-address"
-        labelTx="loginScreen:emailFieldLabel"
-        placeholderTx="loginScreen:emailFieldPlaceholder"
-        helper={error}
-        status={error ? "error" : undefined}
-        onSubmitEditing={() => authPasswordInput.current?.focus()}
-      />
+        <TextField
+          value={authEmail}
+          onChangeText={setAuthEmail}
+          containerStyle={themed($textField)}
+          autoCapitalize="none"
+          autoComplete="email"
+          autoCorrect={false}
+          keyboardType="email-address"
+          labelTx="loginScreen:emailFieldLabel"
+          placeholderTx="loginScreen:emailFieldPlaceholder"
+          helper={error}
+          status={error ? "error" : undefined}
+          onSubmitEditing={() => authPasswordInput.current?.focus()}
+        />
 
-      <TextField
-        ref={authPasswordInput}
-        value={authPassword}
-        onChangeText={setAuthPassword}
-        containerStyle={themed($textField)}
-        autoCapitalize="none"
-        autoComplete="password"
-        autoCorrect={false}
-        secureTextEntry={isAuthPasswordHidden}
-        labelTx="loginScreen:passwordFieldLabel"
-        placeholderTx="loginScreen:passwordFieldPlaceholder"
-        onSubmitEditing={login}
-        RightAccessory={PasswordRightAccessory}
-      />
+        <TextField
+          ref={authPasswordInput}
+          value={authPassword}
+          onChangeText={setAuthPassword}
+          containerStyle={themed($textField)}
+          autoCapitalize="none"
+          autoComplete="password"
+          autoCorrect={false}
+          secureTextEntry={isAuthPasswordHidden}
+          labelTx="loginScreen:passwordFieldLabel"
+          placeholderTx="loginScreen:passwordFieldPlaceholder"
+          onSubmitEditing={login}
+          RightAccessory={PasswordRightAccessory}
+        />
 
-      <Button
-        testID="login-button"
-        tx="loginScreen:tapToLogIn"
-        style={themed($tapButton)}
-        preset="reversed"
-        onPress={login}
-      />
-    </Screen>
+        <Button
+          testID="login-button"
+          tx="loginScreen:tapToLogIn"
+          style={themed($tapButton)}
+          preset="reversed"
+          onPress={login}
+        />
+      </Screen>
+      <LoadingModalComponent />
+    </>
   )
 }
 

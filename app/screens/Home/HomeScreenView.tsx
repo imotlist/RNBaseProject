@@ -7,14 +7,22 @@
  * @module screens/Home
  */
 
-import React from "react"
-import { View, ScrollView, RefreshControl } from "react-native"
+import React, { useState } from "react"
+import { View, ScrollView } from "react-native"
 import { Text } from "@/components/Text"
 import { Screen } from "@/components/Screen"
-import { Avatar, Frame, HeaderApp, IconPack } from "@/components/ui"
+import { Avatar, Frame, HeaderApp, IconPack, Tabs } from "@/components/ui"
+import { InfiniteList } from "@/components/list"
 import type { HomeScreenViewProps } from "./Home"
 import styles from "./Home.styles"
 import { scale } from "@/utils/responsive"
+import { PlantCard } from "./PlantCard"
+import { OfflineMapView } from "./OfflineMapView"
+
+const TAB_OPTIONS = [
+  { key: "maps", label: "Maps" },
+  { key: "data", label: "Data" },
+]
 
 const HomeScreenView: React.FC<HomeScreenViewProps> = ({
   statusBarColor,
@@ -30,9 +38,12 @@ const HomeScreenView: React.FC<HomeScreenViewProps> = ({
   isLoading,
   onNavigateToScreen,
   onRefresh,
+  plantsFetchOptions,
+  plantsTotalCount,
 }) => {
+  const [selectedTab, setSelectedTab] = useState("maps")
   return (
-    <Screen preset="scroll" safeAreaEdges={["top"]} statusBarBackgroundColor={statusBarColor} style={$outerStyle}>
+    <Screen preset="fixed" safeAreaEdges={["top"]} statusBarBackgroundColor={statusBarColor}>
       <HeaderApp
         avatarUri={avatarUri}
         avatarText={avatarText}
@@ -42,12 +53,8 @@ const HomeScreenView: React.FC<HomeScreenViewProps> = ({
         backgroundColor={statusBarColor}
       />
 
-      <ScrollView
-        style={$flex1}
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
-      >
+      {/* Scrollable top content */}
+      <ScrollView style={styles.topScroll} contentContainerStyle={styles.topScrollContent}>
         {/* Welcome Section */}
         <View style={[styles.rowEvenPad, { height: scale(60), marginBottom: scale(50), backgroundColor: statusBarColor }]}>
           <Frame style={{ height: scale(105), gap: scale(10) }}>
@@ -66,47 +73,48 @@ const HomeScreenView: React.FC<HomeScreenViewProps> = ({
           </Frame>
         </View>
 
-        {/* Components Grid */}
-        <View style={styles.contentContainer}>
-          {/* Unsynced warning */}
-          {unsyncedCount > 0 && (
-            <View style={[styles.sectionContainer]}>
-              <Frame rounded="full" color="warning" style={[styles.rowEven, { borderWidth: 0 }]}>
-                <IconPack name="warning" size={scale(20)} color={colors.warning} />
-                <Text size="xs">{unsyncedCount} data perawatan belum tersinkron. Cek koneksi Anda!</Text>
-              </Frame>
-            </View>
-          )}
-
+        {/* Unsynced warning */}
+        {unsyncedCount > 0 && (
           <View style={[styles.sectionContainer]}>
-            <Text size="lg">Tanaman disekitar</Text>
+            <Frame rounded="full" color="warning" style={[styles.rowEven, { borderWidth: 0 }]}>
+              <IconPack name="warning" size={scale(20)} color={colors.warning} />
+              <Text size="xs">{unsyncedCount} data perawatan belum tersinkron. Cek koneksi Anda!</Text>
+            </Frame>
           </View>
+        )}
 
-          {/* Info Section */}
-          <View style={[styles.infoSection, { backgroundColor: colors.palette.neutral100 }]}>
-            <Text style={[styles.infoTitle, { color: colors.text }]}>
-              About This App
-            </Text>
-            <Text style={[styles.infoText, { color: colors.textDim }]}>
-              This showcase demonstrates all the reusable UI components available in the TallyGreen
-              design system. Each screen displays various states and variations of a component.
-            </Text>
-            <Text style={[styles.infoText, { color: colors.textDim }]}>
-              Tap on any component card to view its showcase screen with examples and usage patterns.
-            </Text>
-          </View>
+        <View style={[styles.sectionContainer]}>
+          <Text size="lg">Tanaman disekitar</Text>
         </View>
+
+        {/* Tabs */}
+        <Tabs
+          options={TAB_OPTIONS}
+          selectedKey={selectedTab}
+          onSelect={setSelectedTab}
+        />
       </ScrollView>
+
+      {/* Tab Content - takes remaining space and handles its own scroll */}
+      <View style={styles.tabContentContainer}>
+        {selectedTab === "maps" ? (
+          <OfflineMapView plantsCount={plantsTotalCount} />
+        ) : (
+          <InfiniteList
+            hookOptions={plantsFetchOptions}
+            renderItem={(item) => <PlantCard plant={item as any} />}
+            keyExtractor={(item) => item.id}
+            emptyState={{
+              icon: "plant",
+              title: "Belum ada tanaman",
+              message: "Mulai dengan menambahkan tanaman baru",
+            }}
+            contentContainerStyle={{ padding: scale(20) }}
+          />
+        )}
+      </View>
     </Screen>
   )
 }
 
 export default HomeScreenView
-
-const $outerStyle = {
-  flex: 1,
-}
-
-const $flex1 = {
-  flex: 1,
-}

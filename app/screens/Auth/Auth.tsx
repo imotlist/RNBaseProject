@@ -11,6 +11,7 @@
 import { useCallback, useState } from "react"
 import { FormikHelpers } from "formik"
 import { useAuth } from "@/context/AuthContext"
+import { useLoadingModal } from "@/components/ui"
 import AuthScreenView from "./AuthScreenView"
 import * as authApi from "@/services/api/apisCollection/auth"
 import { getFCMToken } from "@/utils/fcm"
@@ -39,12 +40,18 @@ const Auth = () => {
   const { login } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const { LoadingModalComponent, showLoading, hideLoading } = useLoadingModal()
 
   // Handle form submission
   const handleLogin = useCallback(
     async (values: LoginFormValues, helpers: FormikHelpers<LoginFormValues>) => {
       setIsLoading(true)
       setErrorMessage(null)
+
+      showLoading({
+        title: "Masuk",
+        message: "Sedang masuk...",
+      })
 
       try {
         // Get FCM token for push notifications
@@ -77,9 +84,10 @@ const Auth = () => {
         setErrorMessage(message)
       } finally {
         setIsLoading(false)
+        hideLoading()
       }
     },
-    [login],
+    [login, showLoading, hideLoading],
   )
 
   const viewProps: AuthScreenViewProps = {
@@ -88,7 +96,12 @@ const Auth = () => {
     errorMessage,
   }
 
-  return <AuthScreenView {...viewProps} />
+  return (
+    <>
+      <AuthScreenView {...viewProps} />
+      <LoadingModalComponent />
+    </>
+  )
 }
 
 export default Auth

@@ -47,6 +47,9 @@ export type AppStackParamList = {
   RiwayatDetail: { id: string | number }
   RiwayatTanaman: { plantId: string; plantName?: string }
   ProfileEdit: { user?: UserData }
+  // Offline Map
+  DownloadMap: undefined
+  OfflineMap: undefined
   // Component showcase screens
   ButtonsScreen: undefined
   InputsScreen: undefined

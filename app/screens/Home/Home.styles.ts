@@ -7,7 +7,7 @@
  * @module screens/Home
  */
 
-import { StyleSheet } from "react-native"
+import { StyleSheet, Dimensions } from "react-native"
 import { layoutPresets } from "@/theme/layout"
 import { $styles } from "@/theme/styles"
 
@@ -73,6 +73,18 @@ export default StyleSheet.create({
         fontSize: 14,
         lineHeight: 20,
         marginBottom: 8,
+    },
+    tabContent: {
+        minHeight: 300,
+    },
+    topScroll: {
+        maxHeight: 300,
+    },
+    topScrollContent: {
+        paddingBottom: 10,
+    },
+    tabContentContainer: {
+        height: Dimensions.get('screen').height * 0.45,
     },
 })
 

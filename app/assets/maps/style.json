@@ -1,0 +1,205 @@
+{
+  "version": 8,
+  "name": "Indonesia Offline Ultra Light",
+  "center": [106.8, -2.5],
+  "zoom": 7,
+  "bearing": 0,
+  "pitch": 0,
+  "sources": {
+    "openmaptiles": {
+      "type": "vector",
+      "tiles": ["file:///data/user/0/id.inalum.tallygreen/files/maps/sumut/{z}/{x}/{y}.pbf"],
+      "minzoom": 5,
+      "maxzoom": 14
+    }
+  },
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {
+        "background-color": "#f6f8f9"
+      }
+    },
+    {
+      "id": "landuse",
+      "type": "fill",
+      "source": "openmaptiles",
+      "source-layer": "landuse",
+      "filter": [
+        "any",
+        ["==", "class", "residential"],
+        ["==", "class", "commercial"],
+        ["==", "class", "industrial"]
+      ],
+      "paint": {
+        "fill-color": "#e8e8e8",
+        "fill-opacity": 0.4
+      }
+    },
+    {
+      "id": "park",
+      "type": "fill",
+      "source": "openmaptiles",
+      "source-layer": "park",
+      "paint": {
+        "fill-color": "#c8e6c9",
+        "fill-opacity": 0.5
+      }
+    },
+    {
+      "id": "water",
+      "type": "fill",
+      "source": "openmaptiles",
+      "source-layer": "water",
+      "filter": ["==", "$type", "Polygon"],
+      "paint": {
+        "fill-color": "#cfe8f3"
+      }
+    },
+    {
+      "id": "waterway",
+      "type": "line",
+      "source": "openmaptiles",
+      "source-layer": "waterway",
+      "filter": ["==", "$type", "LineString"],
+      "paint": {
+        "line-color": "#cfe8f3",
+        "line-width": 1.5
+      }
+    },
+    {
+      "id": "road_motorway_trunk",
+      "type": "line",
+      "source": "openmaptiles",
+      "source-layer": "transportation",
+      "filter": [
+        "any",
+        ["==", "class", "motorway"],
+        ["==", "class", "trunk"]
+      ],
+      "paint": {
+        "line-color": "#e87c3a",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          6, 1.2,
+          10, 3,
+          14, 7
+        ]
+      }
+    },
+    {
+      "id": "road_primary",
+      "type": "line",
+      "source": "openmaptiles",
+      "source-layer": "transportation",
+      "filter": ["==", "class", "primary"],
+      "paint": {
+        "line-color": "#f2b705",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          6, 1,
+          10, 2.5,
+          14, 6
+        ]
+      }
+    },
+    {
+      "id": "road_secondary",
+      "type": "line",
+      "source": "openmaptiles",
+      "source-layer": "transportation",
+      "filter": ["==", "class", "secondary"],
+      "paint": {
+        "line-color": "#f6c453",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          6, 0.8,
+          10, 2,
+          14, 5
+        ]
+      }
+    },
+    {
+      "id": "road_minor",
+      "type": "line",
+      "source": "openmaptiles",
+      "source-layer": "transportation",
+      "filter": [
+        "all",
+        ["!=", "class", "trunk"],
+        ["!=", "class", "motorway"],
+        ["!=", "class", "primary"],
+        ["!=", "class", "secondary"]
+      ],
+      "paint": {
+        "line-color": "#ffffff",
+        "line-width": 0.5,
+        "line-opacity": 0.8
+      }
+    },
+    {
+      "id": "boundary",
+      "type": "line",
+      "source": "openmaptiles",
+      "source-layer": "boundary",
+      "filter": ["==", "admin_level", 4],
+      "paint": {
+        "line-color": "#cccccc",
+        "line-width": 1,
+        "line-dasharray": [2, 2],
+        "line-opacity": 0.6
+      }
+    },
+    {
+      "id": "place_city",
+      "type": "symbol",
+      "source": "openmaptiles",
+      "source-layer": "place",
+      "filter": ["any", ["==", "class", "city"], ["==", "class", "town"]],
+      "layout": {
+        "text-field": ["get", "name"],
+        "text-size": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          6, 10,
+          10, 14,
+          14, 18
+        ],
+        "text-font": ["Open Sans Regular"],
+        "text-anchor": "center"
+      },
+      "paint": {
+        "text-color": "#2c2c2c",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.2
+      }
+    },
+    {
+      "id": "place_village",
+      "type": "symbol",
+      "source": "openmaptiles",
+      "source-layer": "place",
+      "filter": ["==", "class", "village"],
+      "minzoom": 10,
+      "layout": {
+        "text-field": ["get", "name"],
+        "text-font": ["Open Sans Regular"],
+        "text-size": 10,
+        "text-anchor": "center"
+      },
+      "paint": {
+        "text-color": "#666666",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1
+      }
+    }
+  ]
+}

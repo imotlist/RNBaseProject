@@ -13,6 +13,7 @@ import { Alert } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import type { AppStackParamList } from "@/navigators/navigationTypes"
+import { useLoadingModal } from "@/components/ui"
 import ProfileScreenView from "./ProfileScreenView"
 import { useAuth } from "@/context/AuthContext"
 import type { UserData, City } from "@/context/AuthContext"
@@ -41,6 +42,7 @@ const Profile = () => {
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
   const [isLoading, setIsLoading] = useState(false)
   const [profileData, setProfileData] = useState<UserData | null>(null)
+  const { LoadingModalComponent, showLoading, hideLoading } = useLoadingModal()
 
   // Fetch profile data from API
   const fetchProfile = useCallback(async () => {
@@ -70,13 +72,21 @@ const Profile = () => {
           text: "Ya",
           style: "destructive",
           onPress: async () => {
-            await authApi.logout()
-            logout()
+            showLoading({
+              title: "Keluar",
+              message: "Sedang keluar...",
+            })
+            try {
+              await authApi.logout()
+              logout()
+            } finally {
+              hideLoading()
+            }
           },
         },
       ],
     )
-  }, [logout])
+  }, [logout, showLoading, hideLoading])
 
   const handleEditProfile = useCallback(() => {
     const currentUser = profileData || user
@@ -101,7 +111,12 @@ const Profile = () => {
     onChangeDistrict: handleChangeDistrict,
   }
 
-  return <ProfileScreenView {...viewProps} />
+  return (
+    <>
+      <ProfileScreenView {...viewProps} />
+      <LoadingModalComponent />
+    </>
+  )
 }
 
 export default Profile

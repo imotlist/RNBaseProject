@@ -34,3 +34,9 @@ export type { HeaderAppProps } from "./HeaderApp"
 
 export { Frame } from "./Frame"
 export type { FrameProps } from "./Frame"
+
+export { Tabs } from "./Tabs"
+export type { TabOption, TabsProps } from "./Tabs"
+
+export { LoadingModal, useLoadingModal } from "./LoadingModal"
+export type { LoadingModalProps, LoadingModalState, UseLoadingModalReturn } from "./LoadingModal"

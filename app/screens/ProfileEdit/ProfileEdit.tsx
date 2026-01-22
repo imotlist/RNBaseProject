@@ -14,6 +14,7 @@ import { useNavigation, RouteProp } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import type { AppStackParamList } from "@/navigators/navigationTypes"
 import { useAuth } from "@/context/AuthContext"
+import { useLoadingModal } from "@/components/ui"
 import * as authApi from "@/services/api/apisCollection/auth"
 import ProfileEditScreenView from "./ProfileEditScreenView"
 import type { FormErrors } from "./types"
@@ -36,6 +37,7 @@ interface ProfileEditScreenProps {
 const ProfileEdit: React.FC<ProfileEditScreenProps> = ({ route }) => {
   const navigation = useNavigation<ProfileEditScreenNavigationProp>()
   const { user: authUser, login } = useAuth()
+  const { LoadingModalComponent, showLoading, hideLoading } = useLoadingModal()
 
   // Get user data from route params or auth context
   const user = route.params?.user || authUser
@@ -104,6 +106,13 @@ const ProfileEdit: React.FC<ProfileEditScreenProps> = ({ route }) => {
     setIsSubmitting(true)
     setErrors({})
 
+    // Show loading modal
+    showLoading({
+      title: "Memperbarui",
+      message: "Sedang memperbarui profil...",
+      subtext: "Mohon tunggu sebentar",
+    })
+
     try {
       const payload: authApi.UpdateProfileRequest = {
         name: name.trim(),
@@ -122,16 +131,19 @@ const ProfileEdit: React.FC<ProfileEditScreenProps> = ({ route }) => {
       // Update auth context
       await login(updatedUser)
 
+      hideLoading()
+
       Alert.alert("Berhasil", "Profil berhasil diperbarui", [
         { text: "OK", onPress: () => navigation.goBack() },
       ])
     } catch (err) {
+      hideLoading()
       const errorMessage = err instanceof Error ? err.message : "Gagal memperbarui profil"
       setErrors({ general: errorMessage })
     } finally {
       setIsSubmitting(false)
     }
-  }, [name, email, currentPassword, newPassword, newPasswordConfirmation, validateForm, login, navigation])
+  }, [name, email, currentPassword, newPassword, newPasswordConfirmation, validateForm, login, navigation, showLoading, hideLoading])
 
   const togglePasswordVisibility = useCallback((field: "current" | "new" | "confirm") => {
     if (field === "current") setShowPassword((prev) => !prev)
@@ -144,27 +156,30 @@ const ProfileEdit: React.FC<ProfileEditScreenProps> = ({ route }) => {
   }, [navigation])
 
   return (
-    <ProfileEditScreenView
-      user={user}
-      isSubmitting={isSubmitting}
-      errors={errors}
-      showPassword={showPassword}
-      showNewPassword={showNewPassword}
-      showConfirmPassword={showConfirmPassword}
-      name={name}
-      email={email}
-      currentPassword={currentPassword}
-      newPassword={newPassword}
-      newPasswordConfirmation={newPasswordConfirmation}
-      onNameChange={setName}
-      onEmailChange={setEmail}
-      onCurrentPasswordChange={setCurrentPassword}
-      onNewPasswordChange={setNewPassword}
-      onConfirmPasswordChange={setNewPasswordConfirmation}
-      onTogglePasswordVisibility={togglePasswordVisibility}
-      onSubmit={handleSubmit}
-      onCancel={handleCancel}
-    />
+    <>
+      <ProfileEditScreenView
+        user={user}
+        isSubmitting={isSubmitting}
+        errors={errors}
+        showPassword={showPassword}
+        showNewPassword={showNewPassword}
+        showConfirmPassword={showConfirmPassword}
+        name={name}
+        email={email}
+        currentPassword={currentPassword}
+        newPassword={newPassword}
+        newPasswordConfirmation={newPasswordConfirmation}
+        onNameChange={setName}
+        onEmailChange={setEmail}
+        onCurrentPasswordChange={setCurrentPassword}
+        onNewPasswordChange={setNewPassword}
+        onConfirmPasswordChange={setNewPasswordConfirmation}
+        onTogglePasswordVisibility={togglePasswordVisibility}
+        onSubmit={handleSubmit}
+        onCancel={handleCancel}
+      />
+      <LoadingModalComponent />
+    </>
   )
 }
 
