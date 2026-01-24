@@ -59,7 +59,7 @@ export const TILE_CONFIG = {
   baseUrl: "https://tally-green.skwn.dev/maps",
   // Zoom levels (from documentation)
   minZoom: 5,
-  maxZoom: 14,
+  maxZoom: 15,
   // Default region ID
   defaultRegionId: "sumut" as const,
 } as const
@@ -182,15 +182,14 @@ export function getRegionFilePath(regionId: string): string {
 
 /**
  * Get the tile URL template for MapLibre
- * On Android: uses absolute path without file:// prefix
- * On iOS: uses file:// prefix
- * Format: /data/user/0/app.id/files/maps/region/{z}/{x}/{y}.pbf
+ * Uses file:// prefix for both Android and iOS
+ * Format: file:///data/user/0/app.id/files/maps/region/{z}/{x}/{y}.pbf
  */
 export function getTileUrlTemplate(regionId: string): string {
   const folderPath = getRegionFolderPath(regionId)
-  // Android MapLibre doesn't work with file:// prefix for local tiles
-  // It needs the absolute path directly
-  return `${folderPath}/{z}/{x}/{y}.pbf`
+  // Both Android and iOS need file:// prefix for local tiles
+  // The path must have 3 slashes after file: (file:///)
+  return `file://${folderPath}/{z}/{x}/{y}.pbf`
 }
 
 /**

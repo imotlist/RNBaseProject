@@ -7,7 +7,7 @@
  * @module screens/Home
  */
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { View, ScrollView } from "react-native"
 import { Text } from "@/components/Text"
 import { Screen } from "@/components/Screen"
@@ -18,6 +18,8 @@ import styles from "./Home.styles"
 import { scale } from "@/utils/responsive"
 import { PlantCard } from "./PlantCard"
 import { OfflineMapView } from "./OfflineMapView"
+import { useAppTheme } from "@/theme/context"
+import { useIsFocused } from "@react-navigation/native"
 
 const TAB_OPTIONS = [
   { key: "maps", label: "Maps" },
@@ -41,16 +43,27 @@ const HomeScreenView: React.FC<HomeScreenViewProps> = ({
   plantsFetchOptions,
   plantsTotalCount,
 }) => {
+  console.log("DATA TOTAL PLANTS:", plantsFetchOptions);
   const [selectedTab, setSelectedTab] = useState("maps")
+  const { theme } = useAppTheme()
+  const isFocused = useIsFocused()
+  const [useColor, setUseColor] = useState(statusBarColor);
+
+  useEffect(() => {
+    if (isFocused) {
+      setUseColor(statusBarColor)
+    }
+  }, [isFocused, statusBarColor])
+
   return (
-    <Screen preset="fixed" safeAreaEdges={["top"]} statusBarBackgroundColor={statusBarColor}>
+    <Screen preset="fixed" safeAreaEdges={["top"]} statusBarBackgroundColor={useColor}>
       <HeaderApp
         avatarUri={avatarUri}
         avatarText={avatarText}
         title={userName}
         subtitle={userRole}
         notificationCount={10}
-        backgroundColor={statusBarColor}
+        backgroundColor={useColor}
       />
 
       {/* Scrollable top content */}
@@ -106,7 +119,7 @@ const HomeScreenView: React.FC<HomeScreenViewProps> = ({
             keyExtractor={(item) => item.id}
             emptyState={{
               icon: "plant",
-              title: "Belum ada tanaman",
+              title: "Tidak ditemukan tanaman disekitar anda",
               message: "Mulai dengan menambahkan tanaman baru",
             }}
             contentContainerStyle={{ padding: scale(20) }}

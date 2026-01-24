@@ -7,20 +7,28 @@
  */
 
 import React, { useState, useCallback, useEffect } from "react"
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, BackHandler, ScrollView, Pressable } from "react-native"
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, BackHandler, ScrollView, Pressable, StatusBar, Linking, Platform } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { checkOfflineTilesReady, MAP_REGIONS, downloadRegion, deleteAllMapData, getRegionSize, getTotalEstimatedSize, checkRegionFileExists, verifyTileStructure } from "@/services/offlineMap"
+import { writeStyleJson } from "@/services/offlineMap/downloadTiles"
 import type { RegionDownloadProgress } from "@/services/offlineMap"
 import { useAppTheme } from "@/theme/context"
 import { IconPack } from "@/components/ui"
 import { scale } from "@/utils/responsive"
 import { goBack } from "@/navigators/navigationUtilities"
+import { usePermission } from "@/context/PermissionContext"
+import * as DocumentPicker from "expo-document-picker"
+import * as RNFS from "@dr.pogodin/react-native-fs"
+import { unzip } from "react-native-zip-archive"
+import { TILE_CONFIG, getRegionFolderPath } from "@/services/offlineMap/tileCheck"
+import pako from "pako"
 
 // ============================================================================
 // Types
 // ============================================================================
 
-type ScreenState = "checking" | "select_region" | "downloading" | "decompressing" | "completed" | "error"
+type ScreenState = "checking" | "select_region" | "downloading" | "uploading" | "decompressing" | "completed" | "error"
+type UploadMode = "download" | "upload"
 
 export type DownloadMapScreenProps = {
   onDownloadComplete?: () => void
@@ -33,8 +41,10 @@ export type DownloadMapScreenProps = {
 export const DownloadMapScreen: React.FC<DownloadMapScreenProps> = ({ onDownloadComplete }) => {
   const { theme } = useAppTheme()
   const { colors } = theme
+  const { requestPermission, openAppSettings, checkAndroidStorageAvailability } = usePermission()
 
   const [screenState, setScreenState] = useState<ScreenState>("checking")
+  const [uploadMode, setUploadMode] = useState<"download" | "upload">("download")
   const [selectedRegionId, setSelectedRegionId] = useState<string>("sumut")
   const [downloadProgress, setDownloadProgress] = useState<RegionDownloadProgress>({
     downloadedBytes: 0,
@@ -45,6 +55,13 @@ export const DownloadMapScreen: React.FC<DownloadMapScreenProps> = ({ onDownload
   const [decompressProgress, setDecompressProgress] = useState({ current: 0, total: 0, fileName: "" })
   const [downloadedRegions, setDownloadedRegions] = useState<string[]>([])
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  // Upload progress states
+  const [uploadProgress, setUploadProgress] = useState({
+    current: 0,
+    total: 100,
+    fileName: "",
+    stage: "idle" as "idle" | "copying" | "extracting" | "verifying" | "complete"
+  })
 
   /**
    * Check if tiles already exist on mount
@@ -275,6 +292,358 @@ export const DownloadMapScreen: React.FC<DownloadMapScreenProps> = ({ onDownload
     )
   }, [])
 
+  /**
+   * Handle manual file upload from device
+   */
+  const handlePickAndUploadFile = useCallback(async () => {
+    try {
+      // Check if storage access is available
+      // On Android 13+, this will return true (document picker works without permission)
+      const storageAvailable = await checkAndroidStorageAvailability()
+
+      if (Platform.OS === "android" && !storageAvailable) {
+        // Storage permission not granted on Android < 13
+        // Show alert with option to request or continue anyway
+        Alert.alert(
+          "Storage Permission",
+          "Storage permission is recommended for accessing map files on your device. You can try opening the file picker, or grant permission in settings.",
+          [
+            { text: "Cancel", style: "cancel" },
+            {
+              text: "Try Anyway",
+              onPress: () => openFilePicker(),
+            },
+            {
+              text: "Open Settings",
+              onPress: () => openAppSettings(),
+            },
+          ]
+        )
+        return
+      }
+
+      // Open file picker directly
+      openFilePicker()
+    } catch (error) {
+      console.error("Error checking storage permission:", error)
+      // Try anyway if check fails
+      openFilePicker()
+    }
+  }, [checkAndroidStorageAvailability, openAppSettings])
+
+  /**
+   * Open the document picker to select a ZIP file
+   */
+  const openFilePicker = useCallback(async () => {
+    try {
+      // Pick a ZIP file using expo-document-picker
+      const result = await DocumentPicker.getDocumentAsync({
+        type: "application/zip",
+        copyToCacheDirectory: true,
+      })
+
+      if (result.canceled) {
+        console.log("File picker cancelled")
+        return
+      }
+
+      if (!result.assets || result.assets.length === 0) {
+        return
+      }
+
+      const file = result.assets[0]
+      const fileName = file.name || "map.zip"
+      const fileUri = file.uri
+
+      // Detect region from filename (sumut.zip or jatim.zip)
+      const regionId = fileName.toLowerCase().includes("sumut") ? "sumut" :
+                      fileName.toLowerCase().includes("jatim") ? "jatim" : null
+
+      if (!regionId) {
+        Alert.alert(
+          "Invalid File",
+          "File name must contain 'sumut' or 'jatim' (e.g., sumut.zip or jatim.zip)",
+          [{ text: "OK" }]
+        )
+        return
+      }
+
+      // Confirm upload
+      Alert.alert(
+        "Upload Map File",
+        `File: ${fileName}\nRegion: ${MAP_REGIONS.find(r => r.id === regionId)?.name}\n\nProceed with upload?`,
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Upload",
+            onPress: () => processUploadedFile(fileUri, regionId, fileName),
+          },
+        ]
+      )
+    } catch (error) {
+      console.error("Error picking file:", error)
+      Alert.alert(
+        "Error",
+        "Failed to pick file. Please try again.",
+        [{ text: "OK" }]
+      )
+    }
+  }, [])
+
+  /**
+   * Process the uploaded ZIP file
+   */
+  const processUploadedFile = useCallback(async (fileUri: string, regionId: string, fileName: string) => {
+    console.log("[UploadMap] Starting upload process:", { fileUri, regionId, fileName })
+    setScreenState("uploading")
+    setUploadProgress({ current: 0, total: 100, fileName, stage: "copying" })
+    setErrorMessage(null)
+
+    try {
+      const region = MAP_REGIONS.find((r) => r.id === regionId)
+      if (!region) {
+        throw new Error("Invalid region")
+      }
+
+      console.log("[UploadMap] Region found:", region.name)
+
+      // Create maps directory if it doesn't exist
+      console.log("[UploadMap] Checking maps directory:", TILE_CONFIG.mapsDirectory)
+      const mapsDirExists = await RNFS.exists(TILE_CONFIG.mapsDirectory)
+      if (!mapsDirExists) {
+        console.log("[UploadMap] Creating maps directory...")
+        await RNFS.mkdir(TILE_CONFIG.mapsDirectory)
+      }
+
+      // Copy file to maps directory
+      const targetZipPath = `${TILE_CONFIG.mapsDirectory}/${regionId}_upload.zip`
+      console.log("[UploadMap] Copying file to:", targetZipPath)
+      setUploadProgress({ current: 10, total: 100, fileName, stage: "copying" })
+
+      await RNFS.copyFile(fileUri, targetZipPath)
+      console.log("[UploadMap] File copied successfully")
+
+      // Extract ZIP
+      console.log("[UploadMap] Extracting ZIP file...")
+      setUploadProgress({ current: 30, total: 100, fileName, stage: "extracting" })
+
+      await unzip(targetZipPath, TILE_CONFIG.mapsDirectory)
+      console.log("[UploadMap] ZIP extraction completed")
+
+      // Clean up ZIP
+      console.log("[UploadMap] Cleaning up temporary ZIP file...")
+      await RNFS.unlink(targetZipPath)
+
+      // Verify extraction
+      const regionFolderPath = getRegionFolderPath(regionId)
+      console.log("[UploadMap] Verifying extraction at:", regionFolderPath)
+      const folderExists = await RNFS.exists(regionFolderPath)
+
+      if (!folderExists) {
+        throw new Error("Extraction failed - expected folder not found")
+      }
+      console.log("[UploadMap] Folder verified successfully")
+
+      setUploadProgress({ current: 70, total: 100, fileName, stage: "verifying" })
+
+      // Check if tiles need decompression (using inline check)
+      const needsDecompression = await checkTilesNeedDecompressionInline(regionFolderPath)
+      console.log("[UploadMap] Tiles need decompression:", needsDecompression)
+
+      if (needsDecompression) {
+        console.log("[UploadMap] Starting tile decompression...")
+        setScreenState("decompressing")
+        setUploadProgress({ current: 80, total: 100, fileName, stage: "complete" })
+
+        // Perform decompression
+        await decompressUploadedTiles(regionFolderPath)
+        console.log("[UploadMap] Tile decompression completed")
+
+        // Verify tiles are now decompressed by checking again
+        const stillCompressed = await checkTilesNeedDecompressionInline(regionFolderPath)
+        if (stillCompressed) {
+          console.warn("[UploadMap] WARNING: Some tiles are still compressed after decompression attempt!")
+          console.warn("[UploadMap] This may indicate decompression is not working properly")
+        } else {
+          console.log("[UploadMap] Verification passed - all tiles are now decompressed")
+        }
+      } else {
+        console.log("[UploadMap] Tiles are already decompressed, skipping decompression step")
+      }
+
+      // Write style.json for MapLibre
+      console.log("[UploadMap] Writing style.json for region:", regionId)
+      await writeStyleJson(regionId)
+      console.log("[UploadMap] Style JSON written successfully")
+
+      setUploadProgress({ current: 100, total: 100, fileName, stage: "complete" })
+      console.log("[UploadMap] Upload process completed successfully")
+
+      // Update downloaded regions
+      setDownloadedRegions((prev) => {
+        const updated = [...new Set([...prev, regionId])]
+        return updated
+      })
+
+      setScreenState("completed")
+
+      setTimeout(() => {
+        if (onDownloadComplete) {
+          onDownloadComplete()
+        } else {
+          setScreenState("select_region")
+          setUploadMode("download")
+        }
+      }, 1500)
+
+    } catch (error) {
+      console.error("[UploadMap] Error:", error)
+      setScreenState("error")
+      setErrorMessage(
+        error instanceof Error ? error.message : "Failed to process uploaded file"
+      )
+    }
+  }, [onDownloadComplete])
+
+  /**
+   * Decompress uploaded tiles (inline version)
+   */
+  const decompressUploadedTiles = async (folderPath: string): Promise<void> => {
+    console.log("[UploadMap] Starting tile decompression for:", folderPath)
+    let decompressed = 0
+    let skipped = 0
+    let failed = 0
+
+    try {
+      const pbfFiles: string[] = []
+
+      // Recursively collect all .pbf files
+      async function collectPbfFiles(path: string, depth = 0): Promise<void> {
+        if (depth > 8) return // Limit recursion depth
+        const items = await RNFS.readDir(path)
+        for (const item of items) {
+          if (item.isDirectory()) {
+            await collectPbfFiles(item.path, depth + 1)
+          } else if (item.isFile() && item.name.endsWith(".pbf")) {
+            pbfFiles.push(item.path)
+          }
+        }
+      }
+
+      await collectPbfFiles(folderPath)
+      console.log(`[UploadMap] Found ${pbfFiles.length} PBF files to check`)
+
+      for (const filePath of pbfFiles) {
+        try {
+          const base64Data = await RNFS.readFile(filePath, "base64")
+
+          // GZIP compressed files start with "H4sI" in base64
+          // (1f 8b in hex = base64 "H4sI" after encoding)
+          if (base64Data.substring(0, 4) === "H4sI") {
+            // GZIP compressed - decompress it using pako
+            const binaryString = atob(base64Data)
+            const compressedData = new Uint8Array(binaryString.length)
+            for (let i = 0; i < binaryString.length; i++) {
+              compressedData[i] = binaryString.charCodeAt(i)
+            }
+
+            // Decompress using pako
+            const decompressedData = pako.ungzip(compressedData)
+
+            // Convert back to base64 using spread operator (same as downloadTiles.ts)
+            const decompressedBase64 = btoa(String.fromCharCode(...decompressedData))
+
+            await RNFS.writeFile(filePath, decompressedBase64, "base64")
+            decompressed++
+
+            // Log every 100 files to track progress
+            if (decompressed % 100 === 0) {
+              console.log(`[UploadMap] Decompressed ${decompressed}/${pbfFiles.length} tiles...`)
+            }
+          } else {
+            skipped++
+          }
+        } catch (e) {
+          failed++
+          console.warn(`[UploadMap] Failed to decompress ${filePath}:`, e)
+        }
+      }
+
+      console.log(`[UploadMap] Decompression summary: ${decompressed} decompressed, ${skipped} skipped, ${failed} failed`)
+    } catch (error) {
+      console.error("[UploadMap] Decompression error:", error)
+      throw error
+    }
+  }
+
+  /**
+   * Open download URL in browser
+   */
+  const handleDownloadMapFile = useCallback(async (regionId: string, regionName: string) => {
+    const downloadUrl = `https://tally-green.skwn.dev/maps/${regionId}.zip`
+
+    try {
+      // Check if URL can be opened
+      const canOpen = await Linking.canOpenURL(downloadUrl)
+      if (canOpen) {
+        await Linking.openURL(downloadUrl)
+      } else {
+        Alert.alert(
+          "Error",
+          "Cannot open download URL. Please check your internet connection.",
+          [{ text: "OK" }]
+        )
+      }
+    } catch (error) {
+      console.error("Error opening URL:", error)
+      Alert.alert(
+        "Error",
+        "Failed to open download URL.",
+        [{ text: "OK" }]
+      )
+    }
+  }, [])
+
+  /**
+   * Inline function to check if tiles need decompression
+   */
+  async function checkTilesNeedDecompressionInline(folderPath: string): Promise<boolean> {
+    try {
+      const sampleFiles: string[] = []
+
+      async function collectSampleFiles(path: string, depth = 0): Promise<void> {
+        if (depth > 5 || sampleFiles.length >= 10) return
+        const items = await RNFS.readDir(path)
+        for (const item of items) {
+          if (sampleFiles.length >= 10) break
+          if (item.isDirectory()) {
+            await collectSampleFiles(item.path, depth + 1)
+          } else if (item.isFile() && item.name.endsWith(".pbf")) {
+            sampleFiles.push(item.path)
+          }
+        }
+      }
+
+      await collectSampleFiles(folderPath)
+
+      if (sampleFiles.length === 0) return false
+
+      for (const filePath of sampleFiles) {
+        try {
+          const base64Data = await RNFS.readFile(filePath, "base64")
+          if (base64Data.substring(0, 4) === "H4sI") {
+            return true
+          }
+        } catch (e) {
+          // Skip this file
+        }
+      }
+      return false
+    } catch (error) {
+      return false
+    }
+  }
+
   const formatBytes = (bytes: number): string => {
     if (bytes < 1024) return `${bytes} B`
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
@@ -309,13 +678,62 @@ export const DownloadMapScreen: React.FC<DownloadMapScreenProps> = ({ onDownload
             )}
             <View style={styles.headerTextContainer}>
               <IconPack name="map" size={scale(28)} color="#fff" variant="Bold" />
-              <Text style={[styles.headerTitle, { color: "#fff" }]}>Download Offline Map</Text>
+              <Text style={[styles.headerTitle, { color: "#fff" }]}>Offline Map</Text>
             </View>
           </View>
           <Text style={[styles.headerSubtitle, { color: "#fff" }]}>
             Select your region to continue
           </Text>
         </View>
+
+        {/* Download/Upload Toggle */}
+        <View style={[styles.toggleContainer, { paddingHorizontal: scale(24) }]}>
+          <View style={[styles.toggleWrapper, { backgroundColor: colors.palette.neutral100 }]}>
+            <TouchableOpacity
+              style={[
+                styles.toggleButton,
+                uploadMode === "download" && { backgroundColor: colors.tint },
+              ]}
+              onPress={() => setUploadMode("download")}
+            >
+              <IconPack
+                name="download"
+                size={scale(16)}
+                color={uploadMode === "download" ? "#fff" : colors.textDim}
+              />
+              <Text
+                style={[
+                  styles.toggleButtonText,
+                  { color: uploadMode === "download" ? "#fff" : colors.textDim },
+                ]}
+              >
+                Download
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.toggleButton,
+                uploadMode === "upload" && { backgroundColor: colors.tint },
+              ]}
+              onPress={() => setUploadMode("upload")}
+            >
+              <IconPack
+                name="upload"
+                size={scale(16)}
+                color={uploadMode === "upload" ? "#fff" : colors.textDim}
+              />
+              <Text
+                style={[
+                  styles.toggleButtonText,
+                  { color: uploadMode === "upload" ? "#fff" : colors.textDim },
+                ]}
+              >
+                Upload File
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         <View style={{paddingHorizontal: scale(24)}}>
           {/* Info Card */}
           <View style={[styles.infoCard, { backgroundColor: colors.palette.neutral50 }]}>
@@ -379,20 +797,75 @@ export const DownloadMapScreen: React.FC<DownloadMapScreenProps> = ({ onDownload
             </Text>
           </View>
 
-          {/* Download Button */}
-          <TouchableOpacity
-            style={[styles.downloadButton, { backgroundColor: colors.tint }]}
-            onPress={handleStartDownload}
-          >
-            <IconPack name="download" size={scale(20)} color="#fff" />
-            <Text style={styles.downloadButtonText}>
-              Download {MAP_REGIONS.find((r) => r.id === selectedRegionId)?.name}
-            </Text>
-          </TouchableOpacity>
+          {/* Content based on upload mode */}
+          {uploadMode === "download" ? (
+            <>
+              {/* Download Button */}
+              <TouchableOpacity
+                style={[styles.downloadButton, { backgroundColor: colors.tint }]}
+                onPress={handleStartDownload}
+              >
+                <IconPack name="download" size={scale(20)} color="#fff" />
+                <Text style={styles.downloadButtonText}>
+                  Download {MAP_REGIONS.find((r) => r.id === selectedRegionId)?.name}
+                </Text>
+              </TouchableOpacity>
 
-          <Text style={[styles.footnoteText, { color: colors.textDim }]}>
-            You need an internet connection to download the maps.
-          </Text>
+              <Text style={[styles.footnoteText, { color: colors.textDim }]}>
+                You need an internet connection to download the maps.
+              </Text>
+            </>
+          ) : (
+            <>
+              {/* Upload Instructions */}
+              <View style={[styles.uploadInstructionsCard, { backgroundColor: colors.palette.neutral100 }]}>
+                <IconPack name="info" size={scale(20)} color={colors.tint} />
+                <View style={styles.uploadInstructionsText}>
+                  <Text style={[styles.uploadInstructionsTitle, { color: colors.text }]}>
+                    How to use manual upload:
+                  </Text>
+                  <Text style={[styles.uploadInstructionsSteps, { color: colors.textDim }]}>
+                    1. Tap the download link below to open in browser{'\n'}
+                    2. The ZIP file will be saved to your Downloads folder{'\n'}
+                    3. Come back here and tap "Select File" to choose the ZIP
+                  </Text>
+                </View>
+              </View>
+
+              {/* Download Links for Manual Download */}
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Download Map Files</Text>
+
+              {MAP_REGIONS.map((region) => (
+                <TouchableOpacity
+                  key={region.id}
+                  style={[styles.downloadLinkCard, { backgroundColor: colors.palette.neutral100 }]}
+                  onPress={() => handleDownloadMapFile(region.id, region.name)}
+                >
+                  <IconPack name="download" size={scale(18)} color={colors.tint} />
+                  <View style={styles.downloadLinkInfo}>
+                    <Text style={[styles.downloadLinkTitle, { color: colors.text }]}>{region.name}</Text>
+                    <Text style={[styles.downloadLinkUrl, { color: colors.textDim }]}>
+                      {region.id}.zip • {region.fileSize}
+                    </Text>
+                  </View>
+                  <IconPack name="arrowRight2" size={scale(16)} color={colors.textDim} />
+                </TouchableOpacity>
+              ))}
+
+              {/* Select File Button */}
+              <TouchableOpacity
+                style={[styles.downloadButton, { backgroundColor: colors.tint }]}
+                onPress={handlePickAndUploadFile}
+              >
+                <IconPack name="folder" size={scale(20)} color="#fff" />
+                <Text style={styles.downloadButtonText}>Select File from Device</Text>
+              </TouchableOpacity>
+
+              <Text style={[styles.footnoteText, { color: colors.textDim }]}>
+                Select the ZIP file you downloaded (sumut.zip or jatim.zip)
+              </Text>
+            </>
+          )}
 
           {/* Clear Map Data Button */}
           {downloadedRegions.length > 0 && (
@@ -455,6 +928,49 @@ export const DownloadMapScreen: React.FC<DownloadMapScreenProps> = ({ onDownload
     )
   }
 
+  const renderUploading = () => {
+    const stageMessages = {
+      copying: "Copying file to app directory...",
+      extracting: "Extracting map tiles...",
+      verifying: "Verifying tiles...",
+      complete: "Finalizing...",
+      idle: "Preparing upload...",
+    }
+
+    const currentStage = uploadProgress.stage
+    const message = stageMessages[currentStage] || "Processing..."
+    const percentage = Math.floor((uploadProgress.current / uploadProgress.total) * 100)
+
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color={colors.tint} />
+
+        <Text style={[styles.titleText, { color: colors.text }]}>Uploading Map File...</Text>
+        <Text style={[styles.subtitleText, { color: colors.textDim }]}>
+          {uploadProgress.fileName}
+        </Text>
+
+        <View style={styles.progressContainer}>
+          <Text style={[styles.percentageText, { color: colors.tint }]}>{percentage}%</Text>
+
+          <View style={[styles.progressBarBackground, { backgroundColor: colors.palette.neutral200 }]}>
+            <View
+              style={[styles.progressBarFill, { width: `${percentage}%`, backgroundColor: colors.tint }]}
+            />
+          </View>
+
+          <Text style={[styles.progressDetailText, { color: colors.textDim }]}>
+            {message}
+          </Text>
+        </View>
+
+        <Text style={[styles.subtitleText, { color: colors.textDim }]}>
+          Please keep the app open. Do not close or background the app.
+        </Text>
+      </View>
+    )
+  }
+
   const renderDecompressing = () => {
     const region = MAP_REGIONS.find((r) => r.id === downloadProgress.regionId)
     const percentage = decompressProgress.total > 0 ? Math.floor((decompressProgress.current / decompressProgress.total) * 100) : 0
@@ -495,7 +1011,7 @@ export const DownloadMapScreen: React.FC<DownloadMapScreenProps> = ({ onDownload
         <IconPack name="check" size={scale(40)} color={colors.palette.success500} variant="Bold" />
       </View>
 
-      <Text style={[styles.titleText, { color: colors.text }]}>Download Complete!</Text>
+      <Text style={[styles.titleText, { color: colors.text }]}>Process Complete!</Text>
       <Text style={[styles.subtitleText, { color: colors.textDim }]}>Offline maps are ready to use</Text>
 
       <ActivityIndicator size="small" color={colors.tint} style={{ marginTop: scale(20) }} />
@@ -509,7 +1025,7 @@ export const DownloadMapScreen: React.FC<DownloadMapScreenProps> = ({ onDownload
         <IconPack name="warning" size={scale(40)} color={colors.palette.error500} variant="Bold" />
       </View>
 
-      <Text style={[styles.titleText, { color: colors.text }]}>Download Failed</Text>
+      <Text style={[styles.titleText, { color: colors.text }]}>Process Failed</Text>
 
       <View style={[styles.errorBox, { backgroundColor: colors.palette.error50 }]}>
         <Text style={[styles.errorText, { color: colors.palette.error700 }]}>{errorMessage}</Text>
@@ -537,9 +1053,11 @@ export const DownloadMapScreen: React.FC<DownloadMapScreenProps> = ({ onDownload
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={["bottom"]}>
+      <StatusBar backgroundColor={colors.background}/>
       {screenState === "checking" && renderChecking()}
       {screenState === "select_region" && renderSelectRegion()}
       {screenState === "downloading" && renderDownloading()}
+      {screenState === "uploading" && renderUploading()}
       {screenState === "decompressing" && renderDecompressing()}
       {screenState === "completed" && renderCompleted()}
       {screenState === "error" && renderError()}
@@ -803,5 +1321,67 @@ const styles = StyleSheet.create({
   debugButtonText: {
     fontSize: scale(14),
     fontWeight: "500",
+  },
+  // Toggle styles
+  toggleContainer: {
+    marginTop: scale(-10),
+    marginBottom: scale(20),
+  },
+  toggleWrapper: {
+    flexDirection: "row",
+    borderRadius: scale(8),
+    padding: scale(4),
+  },
+  toggleButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: scale(6),
+    paddingVertical: scale(10),
+    borderRadius: scale(6),
+  },
+  toggleButtonText: {
+    fontSize: scale(14),
+    fontWeight: "600",
+  },
+  // Upload instructions styles
+  uploadInstructionsCard: {
+    flexDirection: "row",
+    gap: scale(12),
+    borderRadius: scale(12),
+    padding: scale(16),
+    marginBottom: scale(20),
+  },
+  uploadInstructionsText: {
+    flex: 1,
+  },
+  uploadInstructionsTitle: {
+    fontSize: scale(14),
+    fontWeight: "600",
+    marginBottom: scale(4),
+  },
+  uploadInstructionsSteps: {
+    fontSize: scale(13),
+    lineHeight: scale(18),
+  },
+  // Download link card styles
+  downloadLinkCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(12),
+    borderRadius: scale(12),
+    padding: scale(16),
+    marginBottom: scale(12),
+  },
+  downloadLinkInfo: {
+    flex: 1,
+  },
+  downloadLinkTitle: {
+    fontSize: scale(15),
+    fontWeight: "600",
+  },
+  downloadLinkUrl: {
+    fontSize: scale(13),
   },
 })

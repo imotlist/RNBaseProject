@@ -18,7 +18,7 @@ import { usePlantsList } from "./usePlantsList"
 import * as homeApi from "@/services/api/apisCollection/home"
 import * as authApi from "@/services/api/apisCollection/auth"
 import type { UserData } from "@/context/AuthContext"
-
+import useCurrentLocation, { useCachedLocation } from "@/hooks/useLocation"
 // ============================================================================
 // Types
 // ============================================================================
@@ -60,6 +60,9 @@ const Home = () => {
   const [profileData, setProfileData] = useState<UserData | null>(null)
   const [dashboardData, setDashboardData] = useState<homeApi.DashboardData | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+
+  
+  
 
   // ============================================================================
   // Plants List (using custom hook for cleaner code)

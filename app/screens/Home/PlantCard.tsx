@@ -72,7 +72,7 @@ export const PlantCard: React.FC<PlantCardProps> = ({ plant }) => {
         {/* Plant Image */}
         <Avatar
           size="medium"
-          uri={plant.image_url ?? undefined}
+          source={plant.image_url ?? undefined}
           asset={require("@assets/images/IconPlant.png")}
           imageAsIcon
           backgroundColor={colors.palette.neutral300}

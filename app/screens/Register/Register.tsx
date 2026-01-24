@@ -8,11 +8,12 @@
  * @module screens/Register
  */
 
-import { useCallback, useState } from "react"
+import { useCallback, useState, useEffect } from "react"
 import { FormikHelpers } from "formik"
 import { useAuth } from "@/context/AuthContext"
 import RegisterScreenView from "./RegisterScreenView"
 import * as authApi from "@/services/api/apisCollection/auth"
+import * as citiesApi from "@/services/api/apisCollection/cities"
 import { getFCMToken } from "@/utils/fcm"
 import type { UserData } from "@/services/api/apisCollection/auth"
 
@@ -26,7 +27,7 @@ export interface CityOption {
 }
 
 export interface RegisterFormValues {
-  username: string
+  name: string
   email: string
   city_id: string | number
   password: string
@@ -37,6 +38,8 @@ export interface RegisterScreenViewProps {
   isLoading: boolean
   onRegister: (values: RegisterFormValues, helpers: FormikHelpers<RegisterFormValues>) => void
   errorMessage?: string | null
+  cityOptions: CityOption[]
+  isLoadingCities: boolean
 }
 
 // ============================================================================
@@ -47,6 +50,27 @@ const Register = () => {
   const { login } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [cityOptions, setCityOptions] = useState<CityOption[]>([])
+  const [isLoadingCities, setIsLoadingCities] = useState(false)
+
+  // Fetch cities on mount
+  useEffect(() => {
+    const fetchCities = async () => {
+      setIsLoadingCities(true)
+      try {
+        const options = await citiesApi.getCitiesOptions(1, 100)
+        setCityOptions(options)
+      } catch (error) {
+        console.error("Error fetching cities:", error)
+        // Set default empty options on error
+        setCityOptions([])
+      } finally {
+        setIsLoadingCities(false)
+      }
+    }
+
+    fetchCities()
+  }, [])
 
   // Handle form submission
   const handleRegister = useCallback(
@@ -60,7 +84,7 @@ const Register = () => {
 
         // Call register API
         const response = await authApi.register({
-          username: values.username,
+          name: values.name,
           email: values.email,
           city_id: values.city_id,
           password: values.password,
@@ -69,18 +93,18 @@ const Register = () => {
         })
 
         // Convert API user data to match context UserData
-        const userData: UserData = {
-          id: response.user.id,
-          name: response.user.name,
-          username: response.user.username || response.user.name,
-          email: response.user.email,
-          role: response.user.role,
-          city_id: response.user.city_id,
-          avatar: response.user.avatar,
-        }
+        // const userData: UserData = {
+        //   id: response.user.id,
+        //   name: response.user.name,
+        //   username: response.user.username || response.user.name,
+        //   email: response.user.email,
+        //   role: response.user.role,
+        //   city_id: response.user.city_id,
+        //   avatar: response.user.avatar,
+        // }
 
-        // Successful registration - store user data in context
-        await login(userData, response.access_token)
+        // // Successful registration - store user data in context
+        // await login(userData, response.access_token)
         helpers.resetForm()
       } catch (error) {
         console.error("Register error:", error)
@@ -97,6 +121,8 @@ const Register = () => {
     isLoading,
     onRegister: handleRegister,
     errorMessage,
+    cityOptions,
+    isLoadingCities,
   }
 
   return <RegisterScreenView {...viewProps} />

@@ -188,7 +188,7 @@ function InfiniteListInner<T>({
     onEndReached,
     searchQuery,
   } = listState
-
+  console.log(data);
   // Default empty state
   const DefaultEmptyComponent = () => {
     if (emptyState) {

@@ -11,7 +11,7 @@ import { useState, useCallback, useMemo } from "react"
 import type { UseInfiniteListOptions } from "@/hooks/useInfiniteList"
 import type { MyPlantItem } from "@/services/api/apisCollection/myPlants"
 import * as myPlantsApi from "@/services/api/apisCollection/myPlants"
-
+import * as Location from "expo-location"
 // ============================================================================
 // Return Type
 // ============================================================================
@@ -29,6 +29,8 @@ export interface UsePlantsListReturn {
 
 export interface UsePlantsListConfig {
   // Number of items per page (default: 10)
+  latitude?: string
+  longitude?: string
   pageSize?: number
   // Enable pull-to-refresh (default: false)
   pullToRefresh?: boolean
@@ -63,16 +65,24 @@ export function usePlantsList(
    * Fetch plants from API
    * Called automatically by InfiniteList based on pagination needs
    */
-  const fetchPlants = useCallback(async (options: { page: number; pageSize: number }) => {
+  const fetchPlants = useCallback(async (options: { page: number; pageSize: number, }) => {
     const { page, pageSize: size } = options
+
+    const location = await Location.getCurrentPositionAsync({
+      accuracy: Location.Accuracy.Balanced,
+    })
+
+    const { latitude, longitude } = location.coords
 
     // Call the API
     const response = await myPlantsApi.getMyPlants({
+      latitude: latitude.toString(),
+      longitude: longitude.toString(),
       page,
       per_page: size,
     })
 
-    console.log('[PLANT]', response );
+    console.log('[PLANT]', response);
 
     // Update total count for display
     if (response.totalCount !== undefined) {

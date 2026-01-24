@@ -88,6 +88,8 @@ export interface MyPlantsResponse {
 
 export interface GetMyPlantsParams {
   page?: number
+  latitude?: string
+  longitude?: string
   per_page?: number
   search?: string
 }
@@ -106,16 +108,19 @@ export const getMyPlants = async (
   hasMore: boolean
   totalCount?: number
 }> => {
-  const { page = 1, per_page = 10, search } = params
-
+  const { page = 1, per_page = 10, search, latitude, longitude } = params
+  console.log(params);
   const queryParams: Record<string, any> = {
     page,
     per_page: per_page,
   }
 
+  if (latitude) queryParams.latitude = latitude
+  if (longitude) queryParams.longitude = longitude
+
   if (search) queryParams.search = search
 
-  const result = await apiService.get<MyPlantsResponse>("/my-plants", queryParams)
+  const result = await apiService.get<MyPlantsResponse>("/nearby-plants", queryParams)
 
   if (result.kind === "ok" && result.data) {
     const { data, page: meta } = result.data

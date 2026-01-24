@@ -8,8 +8,8 @@
  * @module screens/Register
  */
 
-import React, { useEffect, useState } from "react"
-import { View, ScrollView, Pressable } from "react-native"
+import React, { useEffect, useState, useMemo } from "react"
+import { View, ScrollView, Pressable, RefreshControl } from "react-native"
 import { Formik } from "formik"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
@@ -17,36 +17,18 @@ import { scale } from "@/utils/responsive"
 import { useAppTheme } from "@/theme/context"
 import styles from "./RegisterScreen.styles"
 import { useIsFocused } from "@react-navigation/native"
-import { Image } from "expo-image"
-import type { RegisterFormValues, RegisterScreenViewProps, CityOption } from "./Register"
+import type { RegisterFormValues, RegisterScreenViewProps } from "./Register"
 import { Button } from "@/components/Button"
-import { IconPack, Dropdown } from "@/components/ui"
+import { IconPack, Dropdown, DropdownOption } from "@/components/ui"
 import { TextField } from "@/components/TextField"
 import { navigate } from "@/navigators/navigationUtilities"
-
-// ============================================================================
-// City Options (Mock Data - Replace with API call)
-// ============================================================================
-
-const CITY_OPTIONS: CityOption[] = [
-  { id: "1", name: "Jakarta" },
-  { id: "2", name: "Bandung" },
-  { id: "3", name: "Surabaya" },
-  { id: "4", name: "Medan" },
-  { id: "5", name: "Semarang" },
-  { id: "6", name: "Makassar" },
-  { id: "7", name: "Yogyakarta" },
-  { id: "8", name: "Denpasar" },
-  { id: "9", name: "Palembang" },
-  { id: "10", name: "Balikpapan" },
-]
 
 // ============================================================================
 // Form Config
 // ============================================================================
 
 const INITIAL_VALUES: RegisterFormValues = {
-  username: "",
+  name: "",
   email: "",
   city_id: "",
   password: "",
@@ -56,10 +38,10 @@ const INITIAL_VALUES: RegisterFormValues = {
 const validate = (values: RegisterFormValues) => {
   const errors: Partial<Record<keyof RegisterFormValues, string>> = {}
 
-  if (!values.username) {
-    errors.username = "Username wajib diisi"
-  } else if (values.username.length < 3) {
-    errors.username = "Username minimal 3 karakter"
+  if (!values.name) {
+    errors.name = "Nama wajib diisi"
+  } else if (values.name.length < 3) {
+    errors.name = "Nama minimal 3 karakter"
   }
 
   if (!values.email) {
@@ -95,6 +77,8 @@ const RegisterScreenView: React.FC<RegisterScreenViewProps> = ({
   isLoading = false,
   onRegister,
   errorMessage,
+  cityOptions = [],
+  isLoadingCities = false,
 }) => {
   const { theme } = useAppTheme()
   const { layout } = theme
@@ -118,11 +102,11 @@ const RegisterScreenView: React.FC<RegisterScreenViewProps> = ({
   // Convert city options to dropdown options
   const cityDropdownOptions: DropdownOption[] = useMemo(
     () =>
-      CITY_OPTIONS.map((city) => ({
+      cityOptions.map((city) => ({
         label: city.name,
         value: city.id,
       })),
-    [],
+    [cityOptions],
   )
 
   return (
@@ -139,7 +123,7 @@ const RegisterScreenView: React.FC<RegisterScreenViewProps> = ({
               height: "100%",
               marginTop: scale(40),
               borderTopLeftRadius: scale(30),
-              borderTopRightRadius: scale(30),              
+              borderTopRightRadius: scale(30),
             },
           ]}
         >
@@ -166,18 +150,18 @@ const RegisterScreenView: React.FC<RegisterScreenViewProps> = ({
             validateOnChange={true}
             validateOnBlur={true}
           >
-            {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isValid, setFieldValue }) => (
+            {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
               <View style={{ gap: scale(16) }}>
-                {/* Username Field */}
-                <Text weight="normal">Username</Text>
+                {/* Name Field */}
+                <Text weight="normal">Nama</Text>
                 <TextField
-                  placeholder="username"
+                  placeholder="nama lengkap"
                   rounded="full"
-                  value={values.username}
-                  onChangeText={handleChange("username")}
-                  onBlur={handleBlur("username")}
-                  status={touched.username && errors.username ? "error" : undefined}
-                  helper={touched.username && errors.username ? errors.username : undefined}
+                  value={values.name}
+                  onChangeText={handleChange("name")}
+                  onBlur={handleBlur("name")}
+                  status={touched.name && errors.name ? "error" : undefined}
+                  helper={touched.name && errors.name ? errors.name : undefined}
                   LeftAccessory={() => (
                     <IconPack name="user" size={scale(20)} color={theme.colors.textDim} />
                   )}
@@ -205,9 +189,10 @@ const RegisterScreenView: React.FC<RegisterScreenViewProps> = ({
                 <Dropdown
                   options={cityDropdownOptions}
                   value={values.city_id}
-                  placeholder="Pilih Kota"
+                  placeholder={isLoadingCities ? "Memuat kota..." : "Pilih Kota"}
                   onSelect={(value) => setFieldValue("city_id", value)}
                   rounded="full"
+                  disabled={isLoadingCities}
                   error={touched.city_id ? errors.city_id : undefined}
                 />
 
@@ -268,7 +253,7 @@ const RegisterScreenView: React.FC<RegisterScreenViewProps> = ({
                   onPress={() => handleSubmit()}
                   color="primary"
                   text="Daftar Sekarang"
-                  disabled={isLoading}
+                  disabled={isLoading || isLoadingCities}
                 />
               </View>
             )}

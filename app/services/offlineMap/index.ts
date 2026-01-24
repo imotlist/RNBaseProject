@@ -8,6 +8,7 @@
 // Types
 export type { MapRegion } from "./tileCheck"
 export type { RegionDownloadProgress, RegionDownloadResult } from "./tileCheck"
+export type { TileCoord, TileDebugInfo } from "./tileDebugger"
 
 // Constants
 export { MAP_REGIONS, TILE_CONFIG } from "./tileCheck"
@@ -35,6 +36,7 @@ export {
   deleteRegion,
   deleteAllMapData,
   getRegionStorageSize,
+  writeStyleJson,
 } from "./downloadTiles"
 
 // Debug utilities
@@ -45,3 +47,17 @@ export {
   getMapsDeviceInfo,
   verifyTileStructure,
 } from "./debugTiles"
+
+// Tile debugger utilities
+export {
+  lonLatToTile,
+  tileToLonLat,
+  getTilePath,
+  getViewportTiles,
+  checkTileExists,
+  validateTile,
+  checkViewportTiles,
+  scanRegionStructure,
+  printTileSummary,
+  debugLocation,
+} from "./tileDebugger"

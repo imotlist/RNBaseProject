@@ -219,6 +219,7 @@ export class ApiService {
     params?: Record<string, any>,
     options: RequestOptions = {},
   ): Promise<ApiResult<T>> {
+    console.log("API GET Request:", url, params)
     return this.makeRequest<T>(() => this.apisauce.get(url, params, this.getRequestOptions(options)))
   }
 
@@ -230,6 +231,7 @@ export class ApiService {
     data?: any,
     options: RequestOptions = {},
   ): Promise<ApiResult<T>> {
+    console.log(['API] POST Request to:', url, 'with data:', data])
     return this.makeRequest<T>(() => this.apisauce.post(url, data, this.getRequestOptions(options)))
   }
 
