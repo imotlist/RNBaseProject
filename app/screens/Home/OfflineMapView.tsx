@@ -7,8 +7,8 @@
  * @module screens/Home
  */
 
-import React, { useState, useRef } from "react"
-import { View, StyleSheet, TouchableOpacity, Alert } from "react-native"
+import React, { useState, useRef, useEffect } from "react"
+import { View, StyleSheet, TouchableOpacity, Alert, ScrollView } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { Text } from "@/components/Text"
 import { IconPack } from "@/components/ui"
@@ -16,6 +16,7 @@ import { scale, verticalScale } from "@/utils/responsive"
 import { useAppTheme } from "@/theme/context"
 import { OfflineMap, PointAnnotation } from "@/components/OfflineMap"
 import MapLibreGL from "@maplibre/maplibre-react-native"
+import { checkOfflineTilesReady } from "@/services/offlineMap"
 
 // ============================================================================
 // Types
@@ -48,6 +49,16 @@ export const OfflineMapView: React.FC<OfflineMapViewProps> = ({
   const mapRef = useRef<any>(null)
   const [zoomLevel, setZoomLevel] = useState(10)
   const [isMapReady, setIsMapReady] = useState(false)
+  const [hasTiles, setHasTiles] = useState<boolean | null>(null)
+
+  // Check if offline tiles are available
+  useEffect(() => {
+    const checkTiles = async () => {
+      const tilesReady = await checkOfflineTilesReady()
+      setHasTiles(tilesReady)
+    }
+    checkTiles()
+  }, [])
 
   // Default location: Jakarta (can be made configurable)
   const initialCenter = {
@@ -109,6 +120,47 @@ export const OfflineMapView: React.FC<OfflineMapViewProps> = ({
 
   const openFullScreenMap = () => {
     ;(navigation as any).navigate("OfflineMap")
+  }
+
+  // Show loading state while checking tiles
+  if (hasTiles === null) {
+    return (
+      <View style={styles.container}>
+        <View style={[styles.centerContainer, { backgroundColor: colors.palette.neutral100 }]}>
+          <Text size="sm" style={{ color: colors.textDim }}>Memeriksa peta...</Text>
+        </View>
+      </View>
+    )
+  }
+
+  // Show empty state when no tiles are available
+  if (!hasTiles) {
+    return (
+      <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.emptyScrollContent}>
+          <View style={[styles.emptyContainer, { backgroundColor: colors.palette.neutral50 }]}>
+            <View style={[styles.emptyIconContainer, { backgroundColor: colors.palette.neutral200 }]}>
+              <IconPack name="map" size={scale(40)} color={colors.palette.neutral400} />
+            </View>
+            <Text size="lg" weight="semibold" style={{ color: colors.text, marginTop: scale(16) }}>
+              Peta Wilayah Tidak Tersedia
+            </Text>
+            <Text size="sm" style={{ color: colors.textDim, marginTop: scale(8), textAlign: "center" }}>
+              Data peta offline belum diunduh. Silakan unduh peta wilayah terlebih dahulu untuk melihat lokasi tanaman.
+            </Text>
+            <TouchableOpacity
+              style={[styles.downloadButton, { backgroundColor: colors.palette.primary700 }]}
+              onPress={() => (navigation as any).navigate("DownloadMap")}
+            >
+              <IconPack name="download" size={scale(18)} color="white" />
+              <Text size="sm" weight="medium" style={{ color: "white", marginLeft: scale(8) }}>
+                Unduh Peta Wilayah
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </View>
+    )
   }
 
   return (
@@ -205,6 +257,37 @@ export const OfflineMapView: React.FC<OfflineMapViewProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyScrollContent: {
+    flexGrow: 1,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: scale(24),
+    margin: scale(20),
+    borderRadius: scale(16),
+  },
+  emptyIconContainer: {
+    width: scale(80),
+    height: scale(80),
+    borderRadius: scale(40),
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  downloadButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: scale(20),
+    paddingVertical: scale(12),
+    borderRadius: scale(8),
+    marginTop: scale(20),
   },
   mapContainer: {
     height: verticalScale(300),

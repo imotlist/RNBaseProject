@@ -40,7 +40,6 @@ import FlashMessage from "./providers/FlashMessageProvider"
 import { BottomSheetProvider } from "./providers/BottomSheetProvider"
 import { PopupMessageProvider } from "./providers/PopupMessageProvider"
 import { setNavigationBar } from "./services/sytemBars"
-import { AppGate } from "./components/AppGate"
 
 
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
@@ -123,13 +122,11 @@ export function App() {
                   <ThemeProvider initialContext="light">
                   <BottomSheetProvider>
                     <PopupMessageProvider>
-                      <AppGate>
-                        <AppNavigator
-                          linking={linking}
-                          initialState={initialNavigationState}
-                          onStateChange={onNavigationStateChange}
-                        />
-                      </AppGate>
+                      <AppNavigator
+                        linking={linking}
+                        initialState={initialNavigationState}
+                        onStateChange={onNavigationStateChange}
+                      />
                       <FlashMessage />
                     </PopupMessageProvider>
                   </BottomSheetProvider>

@@ -80,10 +80,17 @@ export interface MyPlantsMeta {
   lastPage: number
 }
 
-export interface MyPlantsResponse {
+export interface NearbyPlantsResponse {
   success: boolean
-  data: MyPlantItem[]
-  page: MyPlantsMeta
+  data: {
+    center: {
+      latitude: number
+      longitude: number
+    }
+    radius_km: number
+    total: number
+    plants: MyPlantItem[]
+  }
 }
 
 export interface GetMyPlantsParams {
@@ -120,16 +127,18 @@ export const getMyPlants = async (
 
   if (search) queryParams.search = search
 
-  const result = await apiService.get<MyPlantsResponse>("/nearby-plants", queryParams)
+  const result = await apiService.get<NearbyPlantsResponse>("/nearby-plants", queryParams)
 
   if (result.kind === "ok" && result.data) {
-    const { data, page: meta } = result.data
-    const hasMore = meta ? meta.currentPage < meta.lastPage : false
+    const { data } = result.data
+    const plants = data.plants || []
+    const total = data.total || 0
+    const hasMore = plants.length >= per_page
 
     return {
-      data,
+      data: plants,
       hasMore,
-      totalCount: meta?.total,
+      totalCount: total,
     }
   }
 
